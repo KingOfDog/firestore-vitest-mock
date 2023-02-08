@@ -449,7 +449,7 @@ export class DocumentReference {
     query.mockWithConverter(...arguments);
     return this;
   }
-};
+}
 
 /*
  * ============
@@ -560,4 +560,4 @@ export class CollectionReference extends Query {
       other.path === this.path
     );
   }
-};
+}

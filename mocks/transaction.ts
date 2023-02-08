@@ -1,4 +1,6 @@
 import { vi } from "vitest";
+import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
+import { Query } from './query';
 
 export const mockGetAll = vi.fn();
 export const mockGetAllTransaction = vi.fn();
@@ -9,7 +11,7 @@ export const mockDeleteTransaction = vi.fn();
 export const mockCreateTransaction = vi.fn();
 
 export class Transaction {
-  getAll(...refsOrReadOptions) {
+  getAll(...refsOrReadOptions: Array<Query | Record<string, never>>): Promise<Array<MockedQuerySnapshot>> {
     mockGetAll(...arguments);
     mockGetAllTransaction(...arguments);
     // TODO: Assert that read options, if provided, are the last argument
@@ -19,12 +21,12 @@ export class Transaction {
     );
   }
 
-  get(ref) {
+  get(ref: Query): Promise<MockedQuerySnapshot> {
     mockGetTransaction(...arguments);
     return Promise.resolve(ref._get());
   }
 
-  set(ref) {
+  set(ref: Query): Transaction {
     mockSetTransaction(...arguments);
     const args = [...arguments];
     args.shift();
@@ -32,7 +34,7 @@ export class Transaction {
     return this;
   }
 
-  update(ref) {
+  update(ref: Query): Transaction {
     mockUpdateTransaction(...arguments);
     const args = [...arguments];
     args.shift();
@@ -40,13 +42,13 @@ export class Transaction {
     return this;
   }
 
-  delete(ref) {
+  delete(ref: Query): Transaction {
     mockDeleteTransaction(...arguments);
     ref.delete();
     return this;
   }
 
-  create(ref, options) {
+  create(ref: Query, options: unknown): Transaction {
     mockCreateTransaction(...arguments);
     ref.set(options);
     return this;

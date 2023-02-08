@@ -16,7 +16,7 @@ export default function buildQuerySnapShot(requestedRecords, filters, selectFiel
       return [];
     },
   };
-};
+}
 
 /**
  * @typedef DocumentHash

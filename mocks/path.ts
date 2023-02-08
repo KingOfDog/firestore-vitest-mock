@@ -1,8 +1,8 @@
-export class Path {
-  constructor(segments) {
-    this.segments = segments;
+abstract class Path<T> {
+  constructor(public segments: string[]) {
   }
-  compareTo(other) {
+
+  compareTo(other: Path<T>): number {
     const len = Math.min(this.segments.length, other.segments.length);
     for (let i = 0; i < len; i++) {
       if (this.segments[i] < other.segments[i]) {
@@ -20,20 +20,22 @@ export class Path {
     }
     return 0;
   }
-  isEqual(other) {
+
+  isEqual(other: Path<T>): boolean {
     return this === other || this.compareTo(other) === 0;
   }
 }
 
-export class FieldPath extends Path {
-  constructor(...segments) {
+export class FieldPath extends Path<FieldPath> {
+  private static _DOCUMENT_ID = new FieldPath("__name__");
+
+  constructor(...segments: string[]) {
     super(segments);
   }
-  static documentId() {
+  static documentId(): FieldPath {
     return FieldPath._DOCUMENT_ID;
   }
-  isEqual(other) {
+  isEqual(other: FieldPath): boolean {
     return super.isEqual(other);
   }
 }
-FieldPath._DOCUMENT_ID = new FieldPath("__name__");
