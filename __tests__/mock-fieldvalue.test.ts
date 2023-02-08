@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const {
+import {
   mockFirebase,
+} from "..";
+import {
   mockArrayRemoveFieldValue,
   mockArrayUnionFieldValue,
   mockDeleteFieldValue,
   mockIncrementFieldValue,
   mockServerTimestampFieldValue
-} = require("../mocks/firestore");
+} from "../mocks/firestore";
 mockFirebase({ database: {} });
-const firebase = require("firebase");
+import * as firebase from 'firebase';
 
 describe("Single values transformed by field sentinels", () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import { vi } from "vitest";
 import { FakeFirestoreDatabase } from './firestore.model';
 
-const mockTimestampToDate = vi.fn<unknown[], Date>();
-const mockTimestampToMillis = vi.fn<unknown[], number>();
-const mockTimestampFromDate = vi.fn<unknown[], Timestamp>();
-const mockTimestampFromMillis = vi.fn<unknown[], Timestamp>();
-const mockTimestampNow = vi.fn<unknown[], Timestamp>();
+export const mockTimestampToDate = vi.fn<unknown[], Date>();
+export const mockTimestampToMillis = vi.fn<unknown[], number>();
+export const mockTimestampFromDate = vi.fn<unknown[], Timestamp>();
+export const mockTimestampFromMillis = vi.fn<unknown[], Timestamp>();
+export const mockTimestampNow = vi.fn<unknown[], Timestamp>();
 
 export class Timestamp {
   constructor(private seconds: number, private nanoseconds: number) { }

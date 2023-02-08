@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const {
+import {
+  CollectionReference,
+  DocumentReference,
   FakeFirestore,
   mockCollection,
-  mockDoc
-} = require("../mocks/firestore");
+  mockDoc,
+  Timestamp
+} from "../mocks/firestore";
 
 describe("Queries", () => {
   beforeEach(() => {
@@ -27,7 +30,7 @@ describe("Queries", () => {
               nanoseconds: 0
             },
             // Test a pre-constructed Timestamp
-            timestamp: new FakeFirestore.Timestamp(123, 456)
+            timestamp: new Timestamp(123, 456)
           },
           { id: "krusty", name: "Krusty", occupation: "clown" },
           {
@@ -144,11 +147,11 @@ describe("Queries", () => {
     test("it throws an error if the collection path ends at a document", () => {
       expect(() => db().collection("")).toThrow(Error);
       expect(db().collection("foo")).toBeInstanceOf(
-        FakeFirestore.CollectionReference
+        CollectionReference
       );
       expect(() => db().collection("foo/bar")).toThrow(Error);
       expect(db().collection("foo/bar/baz")).toBeInstanceOf(
-        FakeFirestore.CollectionReference
+        CollectionReference
       );
     });
 
@@ -156,7 +159,7 @@ describe("Queries", () => {
       expect(() => db().doc("")).toThrow(Error);
       expect(() => db().doc("characters")).toThrow(Error);
       expect(db().doc("characters/bob")).toBeInstanceOf(
-        FakeFirestore.DocumentReference
+        DocumentReference
       );
       expect(() => db().doc("characters/bob/family")).toThrow(Error);
     });

@@ -1,12 +1,12 @@
 import { vi } from "vitest";
 
-const mockArrayUnionFieldValue = vi.fn();
-const mockArrayRemoveFieldValue = vi.fn();
-const mockDeleteFieldValue = vi.fn();
-const mockIncrementFieldValue = vi.fn();
-const mockServerTimestampFieldValue = vi.fn();
+export const mockArrayUnionFieldValue = vi.fn();
+export const mockArrayRemoveFieldValue = vi.fn();
+export const mockDeleteFieldValue = vi.fn();
+export const mockIncrementFieldValue = vi.fn();
+export const mockServerTimestampFieldValue = vi.fn();
 
-class FieldValue {
+export class FieldValue {
   constructor(type, value) {
     this.type = type;
     this.value = value;
@@ -51,14 +51,3 @@ class FieldValue {
     return new FieldValue("delete");
   }
 }
-
-module.exports = {
-  FieldValue,
-  mocks: {
-    mockArrayUnionFieldValue,
-    mockArrayRemoveFieldValue,
-    mockDeleteFieldValue,
-    mockIncrementFieldValue,
-    mockServerTimestampFieldValue
-  }
-};

@@ -1,14 +1,14 @@
 import { vi } from "vitest";
 
-const mockGetAll = vi.fn();
-const mockGetAllTransaction = vi.fn();
-const mockGetTransaction = vi.fn();
-const mockSetTransaction = vi.fn();
-const mockUpdateTransaction = vi.fn();
-const mockDeleteTransaction = vi.fn();
-const mockCreateTransaction = vi.fn();
+export const mockGetAll = vi.fn();
+export const mockGetAllTransaction = vi.fn();
+export const mockGetTransaction = vi.fn();
+export const mockSetTransaction = vi.fn();
+export const mockUpdateTransaction = vi.fn();
+export const mockDeleteTransaction = vi.fn();
+export const mockCreateTransaction = vi.fn();
 
-class Transaction {
+export class Transaction {
   getAll(...refsOrReadOptions) {
     mockGetAll(...arguments);
     mockGetAllTransaction(...arguments);
@@ -52,16 +52,3 @@ class Transaction {
     return this;
   }
 }
-
-module.exports = {
-  Transaction,
-  mocks: {
-    mockGetAll,
-    mockGetAllTransaction,
-    mockGetTransaction,
-    mockSetTransaction,
-    mockUpdateTransaction,
-    mockDeleteTransaction,
-    mockCreateTransaction
-  }
-};

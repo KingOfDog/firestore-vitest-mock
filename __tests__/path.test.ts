@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const { mockFirebase } = require("../mocks/firebase");
+import { mockFirebase } from "..";
 mockFirebase({ database: {} });
-const firebase = require("firebase");
-const path = require("../mocks/path");
+import * as firebase from "firebase";
+import * as path from "../mocks/path";
 
 describe("Single values transformed by field sentinels", () => {
   test("isEqual", () => {
+    const test = firebase;
+    const test2 = firebase.firestore;
     const path1 = new firebase.firestore.FieldPath("collection", "doc1");
     const path2 = new firebase.firestore.FieldPath("collection", "doc2");
     expect(path1.isEqual(path1)).toBe(true);

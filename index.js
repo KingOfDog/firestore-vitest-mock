@@ -1,13 +1,14 @@
-const { FakeFirestore } = require('./mocks/firestore');
-const { FakeAuth } = require('./mocks/auth');
-const { mockFirebase } = require('./mocks/firebase');
-const { mockGoogleCloudFirestore } = require('./mocks/googleCloudFirestore');
-const { mockReactNativeFirestore } = require('./mocks/reactNativeFirebaseFirestore');
-
-module.exports = {
-  mockGoogleCloudFirestore,
-  mockFirebase,
-  mockReactNativeFirestore,
+export {
   FakeFirestore,
-  FakeAuth,
-};
+  Query,
+  CollectionReference,
+  DocumentReference,
+  FieldValue,
+  Timestamp,
+  Transaction,
+  FieldPath
+} from "./mocks/firestore";
+export { FakeAuth } from "./mocks/auth";
+export { mockFirebase } from "./mocks/firebase";
+export { mockGoogleCloudFirestore } from "./mocks/googleCloudFirestore";
+export { mockReactNativeFirestore } from "./mocks/reactNativeFirebaseFirestore";

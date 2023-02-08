@@ -1,6 +1,8 @@
 # Mock Firestore
 
-> Jest Mock for testing Google Cloud Firestore
+> Vitest Mock for testing Google Cloud Firestore
+
+Fork from [firestore-jest-mock](https://github.com/Upstatement/firestore-jest-mock)
 
 A simple way to mock calls to Cloud Firestore, allowing you to assert that you are requesting data correctly.
 

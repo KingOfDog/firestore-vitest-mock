@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, vi, test } from "vitest";
+import { beforeEach, describe, expect, vi, test, afterEach } from "vitest";
 
 describe.each([
   {
@@ -9,11 +9,12 @@ describe.each([
     library: "@react-native-firebase/firestore",
     mockFunction: "mockReactNativeFirestore"
   }
-])("mocking %i with %i", ({ library, mockFunction }) => {
-  const FirestoreMock = require("../mocks");
+])("mocking $library with %mockFunction", async ({ library, mockFunction }) => {
+  const FirestoreMock = await import("..");
 
+  const { mockInitializeApp } = await import("../mocks/firebase");
   const flushPromises = () => new Promise(setImmediate);
-  const { Timestamp } = require("../mocks/timestamp");
+  const { Timestamp } = await import("../mocks/timestamp");
   const {
     mockGet,
     mockSelect,
@@ -30,8 +31,9 @@ describe.each([
     mockSettings,
     mockOnSnapShot,
     mockListCollections,
-    mockTimestampNow
-  } = require("../mocks/firestore");
+    mockTimestampNow,
+    CollectionReference,
+  } = await import("../mocks/firestore");
 
   describe("we can start a firestore application", () => {
     FirestoreMock[mockFunction]({
@@ -68,14 +70,18 @@ describe.each([
       }
     });
 
-    beforeEach(() => {
-      this.Firestore = require(library).Firestore;
+    let Firestore;
+
+    beforeEach(async () => {
+      const package = await import(library);
+      Firestore = package.Firestore;
     });
 
     afterEach(() => mockTimestampNow.mockClear());
 
     test("We can start an application", async () => {
-      const firestore = new this.Firestore();
+      const firestore = new Firestore();
+      expect(mockInitializeApp).toHaveBeenCalled();
       firestore.settings({ ignoreUndefinedProperties: true });
       expect(mockSettings).toHaveBeenCalledWith({
         ignoreUndefinedProperties: true
@@ -84,7 +90,7 @@ describe.each([
 
     describe("Examples from documentation", () => {
       test("add a user", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection("users")
@@ -93,14 +99,14 @@ describe.each([
             last: "Lovelace",
             born: 1815
           })
-          .then(function(docRef) {
+          .then(function (docRef) {
             expect(mockAdd).toHaveBeenCalled();
             expect(docRef).toHaveProperty("id");
           });
       });
 
       test("get all users", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection("users")
@@ -118,7 +124,7 @@ describe.each([
       });
 
       test("select specific fields only", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection("users")
@@ -135,7 +141,7 @@ describe.each([
       });
 
       test("select refs only", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection("users")
@@ -150,7 +156,7 @@ describe.each([
       });
 
       test("collectionGroup at root", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collectionGroup("users")
@@ -174,7 +180,7 @@ describe.each([
 
       test("collectionGroup with subcollections", () => {
         vi.clearAllMocks();
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collectionGroup("cities")
@@ -197,7 +203,7 @@ describe.each([
       });
 
       test("set a city", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection("cities")
@@ -207,7 +213,7 @@ describe.each([
             state: "CA",
             country: "USA"
           })
-          .then(function() {
+          .then(function () {
             expect(mockSet).toHaveBeenCalledWith({
               name: "Los Angeles",
               state: "CA",
@@ -217,7 +223,7 @@ describe.each([
       });
 
       test("updating a city", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
         const washingtonRef = firestore.collection("cities").doc("DC");
 
@@ -227,14 +233,14 @@ describe.each([
           .update({
             capital: true
           })
-          .then(function(value) {
+          .then(function (value) {
             expect(value.updateTime).toStrictEqual(now);
             expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
           });
       });
 
       test("batch writes", () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         // Get a new write batch
         const batch = firestore.batch();
@@ -252,7 +258,7 @@ describe.each([
         batch.delete(laRef);
 
         // Commit the batch
-        return batch.commit().then(function() {
+        return batch.commit().then(function () {
           expect(mockBatch).toHaveBeenCalled();
           expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
           expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, {
@@ -266,7 +272,7 @@ describe.each([
       });
 
       test("listCollections returns a promise", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const listCollectionsPromise = firestore
           .collection("cities")
@@ -277,7 +283,7 @@ describe.each([
       });
 
       test("listCollections resolves with child collections", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const result = await firestore
           .collection("users")
@@ -287,13 +293,13 @@ describe.each([
         expect(result).toEqual(expect.any(Array));
         expect(result).toHaveLength(1);
         expect(result[0]).toEqual(
-          expect.any(this.Firestore.CollectionReference)
+          expect.any(CollectionReference)
         );
         expect(result[0].id).toBe("cities");
       });
 
       test("listCollections resolves with empty array if there are no collections in document", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const result = await firestore
           .collection("users")
@@ -305,7 +311,7 @@ describe.each([
       });
 
       test("listCollections calls mockListCollections", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         await firestore
           .collection("users")
@@ -316,7 +322,7 @@ describe.each([
       });
 
       test("onSnapshot single doc", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
 
         mockTimestampNow.mockReturnValue(now);
@@ -340,7 +346,7 @@ describe.each([
       });
 
       test("onSnapshot can work with options", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
 
         mockTimestampNow.mockReturnValue(now);
@@ -370,7 +376,7 @@ describe.each([
       });
 
       test("onSnapshot with query", async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const unsubscribe = firestore
           .collection("cities")

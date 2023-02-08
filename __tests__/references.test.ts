@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const {
+import {
   FakeFirestore,
   mockCollection,
   mockDoc,
@@ -9,8 +9,10 @@ const {
   mockLimit,
   mockOrderBy,
   mockStartAfter,
-  mockStartAt
-} = require("../mocks/firestore");
+  mockStartAt,
+  DocumentReference,
+  CollectionReference
+} from "../mocks/firestore";
 
 describe("Reference Sentinels", () => {
   beforeEach(() => {
@@ -40,12 +42,12 @@ describe("Reference Sentinels", () => {
   describe("Collection Reference", () => {
     test("it returns a collection reference", () => {
       const charactersRef = db.collection("characters");
-      expect(charactersRef).toBeInstanceOf(FakeFirestore.CollectionReference);
+      expect(charactersRef).toBeInstanceOf(CollectionReference);
       expect(charactersRef.parent).toBeNull();
       expect(mockCollection).toHaveBeenCalledWith("characters");
 
       expect(db.collection("non-existent")).toBeInstanceOf(
-        FakeFirestore.CollectionReference
+        CollectionReference
       );
       expect(mockCollection).toHaveBeenCalledWith("non-existent");
     });
@@ -93,17 +95,17 @@ describe("Reference Sentinels", () => {
   describe("Document Reference", () => {
     test("it returns a document reference", () => {
       const homerRef = db.collection("characters").doc("homer");
-      expect(homerRef).toBeInstanceOf(FakeFirestore.DocumentReference);
+      expect(homerRef).toBeInstanceOf(DocumentReference);
       expect(homerRef).toHaveProperty(
         "parent",
-        expect.any(FakeFirestore.CollectionReference)
+        expect.any(CollectionReference)
       );
       expect(mockCollection).toHaveBeenCalledWith("characters");
       expect(mockDoc).toHaveBeenCalledWith("homer");
 
       expect(
         db.collection("non-existent").doc("need-I-say-more")
-      ).toBeInstanceOf(FakeFirestore.DocumentReference);
+      ).toBeInstanceOf(DocumentReference);
       expect(mockCollection).toHaveBeenCalledWith("non-existent");
       expect(mockDoc).toHaveBeenCalledWith("need-I-say-more");
     });

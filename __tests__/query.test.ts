@@ -1,14 +1,19 @@
-import { beforeEach, describe, expect, vi, test } from "vitest";
+import { beforeEach, describe, expect, vi, test, beforeAll } from "vitest";
 
-const {
+import {
   mockCollection,
   mockDoc,
   mockGet,
   mockWhere,
   mockOffset,
   FakeFirestore,
+  Timestamp,
+  Query,
+  DocumentReference
+} from "../mocks/firestore";
+import {
   mockFirebase
-} = require("../mocks/firestore");
+} from "..";
 
 describe("Queries", () => {
   mockFirebase(
@@ -23,7 +28,7 @@ describe("Queries", () => {
             food: ["banana", "mango"],
             foodCount: 1,
             foodEaten: [500, 20],
-            createdAt: new FakeFirestore.Timestamp(1628939119, 0)
+            createdAt: new Timestamp(1628939119, 0)
           },
           {
             id: "elephant",
@@ -33,7 +38,7 @@ describe("Queries", () => {
             food: ["banana", "peanut"],
             foodCount: 0,
             foodEaten: [0, 500],
-            createdAt: new FakeFirestore.Timestamp(1628939129, 0)
+            createdAt: new Timestamp(1628939129, 0)
           },
           {
             id: "chicken",
@@ -43,7 +48,7 @@ describe("Queries", () => {
             food: ["leaf", "nut", "ant"],
             foodCount: 4,
             foodEaten: [80, 20, 16],
-            createdAt: new FakeFirestore.Timestamp(1628939139, 0),
+            createdAt: new Timestamp(1628939139, 0),
             _collections: {
               foodSchedule: [
                 {
@@ -65,7 +70,7 @@ describe("Queries", () => {
             food: ["leaf", "bread"],
             foodCount: 2,
             foodEaten: [80, 12],
-            createdAt: new FakeFirestore.Timestamp(1628939149, 0),
+            createdAt: new Timestamp(1628939149, 0),
             _collections: {
               foodSchedule: [
                 {
@@ -131,14 +136,19 @@ describe("Queries", () => {
     { simulateQueryFilters: true }
   );
 
-  const firebase = require("firebase");
-  firebase.initializeApp({
-    apiKey: "### FIREBASE API KEY ###",
-    authDomain: "### FIREBASE AUTH DOMAIN ###",
-    projectId: "### CLOUD FIRESTORE PROJECT ID ###"
-  });
+  let firebase;
+  let db;
 
-  const db = firebase.firestore();
+  beforeAll(async () => {
+    firebase = await import("firebase");
+    firebase.initializeApp({
+      apiKey: "### FIREBASE API KEY ###",
+      authDomain: "### FIREBASE AUTH DOMAIN ###",
+      projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+    });
+
+    db = firebase.firestore();
+  });
 
   test("it can query a single document", async () => {
     const monkey = await db
@@ -271,7 +281,7 @@ describe("Queries", () => {
     expect(scheduleItems).toHaveProperty("size", 1); // Returns 1 document
     expect(scheduleItems.docs[0]).toHaveProperty(
       "ref",
-      expect.any(FakeFirestore.DocumentReference)
+      expect.any(DocumentReference)
     );
     expect(scheduleItems.docs[0]).toHaveProperty("id", "leaf");
     expect(scheduleItems.docs[0].data()).toHaveProperty("interval", "hourly");
@@ -295,7 +305,7 @@ describe("Queries", () => {
       expect(scheduleItems).toHaveProperty("size", 1); // Returns 1 document
       expect(scheduleItems.docs[0]).toHaveProperty(
         "ref",
-        expect.any(FakeFirestore.DocumentReference)
+        expect.any(DocumentReference)
       );
       expect(scheduleItems.docs[0]).toHaveProperty("id", "leaf");
       expect(scheduleItems.docs[0].data()).toHaveProperty("interval", "hourly");
@@ -342,12 +352,12 @@ describe("Queries", () => {
   test("it returns a Query from query methods", () => {
     const ref = db.collection("animals");
     expect(ref.where("type", "==", "mammal")).toBeInstanceOf(
-      FakeFirestore.Query
+      Query
     );
-    expect(ref.limit(1)).toBeInstanceOf(FakeFirestore.Query);
-    expect(ref.orderBy("type")).toBeInstanceOf(FakeFirestore.Query);
-    expect(ref.startAfter(null)).toBeInstanceOf(FakeFirestore.Query);
-    expect(ref.startAt(null)).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.limit(1)).toBeInstanceOf(Query);
+    expect(ref.orderBy("type")).toBeInstanceOf(Query);
+    expect(ref.startAfter(null)).toBeInstanceOf(Query);
+    expect(ref.startAt(null)).toBeInstanceOf(Query);
   });
 
   test("it throws an error when comparing to null", () => {

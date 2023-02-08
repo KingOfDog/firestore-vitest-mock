@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const { mockFirebase, mockInitializeApp } = require("../mocks/firebase");
-const {
+import {
+  mockFirebase,
+  mockInitializeApp,
+} from '../mocks/firebase';
+import {
   mockCreateUserWithEmailAndPassword,
   mockSignInWithEmailAndPassword,
   mockSignOut,
@@ -12,7 +15,7 @@ const {
   mockCreateCustomToken,
   mockSetCustomUserClaims,
   mockUseEmulator
-} = require("../mocks/auth");
+} from '../mocks/auth';
 
 describe("we can start a firebase application", () => {
   mockFirebase({
@@ -45,11 +48,14 @@ describe("we can start a firebase application", () => {
     currentUser: { uid: "abc123", displayName: "Bob" }
   });
 
-  beforeEach(() => {
+  let firebase;
+  let admin;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
-    this.firebase = require("firebase");
-    this.admin = require("firebase-admin");
-    this.firebase.initializeApp({
+    firebase = await import("firebase");
+    admin = await import("firebase-admin");
+    firebase.initializeApp({
       apiKey: "### FIREBASE API KEY ###",
       authDomain: "### FIREBASE AUTH DOMAIN ###",
       projectId: "### CLOUD FIRESTORE PROJECT ID ###"
@@ -57,12 +63,12 @@ describe("we can start a firebase application", () => {
   });
 
   test("We can start an application", async () => {
-    this.firebase.auth();
+    firebase.auth();
     expect(mockInitializeApp).toHaveBeenCalled();
   });
 
   test("We can use emulator", () => {
-    this.firebase.auth().useEmulator("http://localhost:9099");
+    firebase.auth().useEmulator("http://localhost:9099");
     expect(mockUseEmulator).toHaveBeenCalledWith("http://localhost:9099");
   });
 
@@ -70,7 +76,7 @@ describe("we can start a firebase application", () => {
     describe("Examples from documentation", () => {
       test("add a user", async () => {
         expect.assertions(1);
-        await this.firebase
+        await firebase
           .auth()
           .createUserWithEmailAndPassword("sam", "hill");
         expect(mockCreateUserWithEmailAndPassword).toHaveBeenCalledWith(
@@ -81,7 +87,7 @@ describe("we can start a firebase application", () => {
 
       test("sign in", async () => {
         expect.assertions(1);
-        await this.firebase.auth().signInWithEmailAndPassword("sam", "hill");
+        await firebase.auth().signInWithEmailAndPassword("sam", "hill");
         expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
           "sam",
           "hill"
@@ -90,13 +96,13 @@ describe("we can start a firebase application", () => {
 
       test("sign out", async () => {
         expect.assertions(1);
-        await this.firebase.auth().signOut();
+        await firebase.auth().signOut();
         expect(mockSignOut).toHaveBeenCalled();
       });
 
       test("send password reset email", async () => {
         expect.assertions(1);
-        await this.firebase.auth().sendPasswordResetEmail("sam", null);
+        await firebase.auth().sendPasswordResetEmail("sam", null);
         expect(mockSendPasswordResetEmail).toHaveBeenCalledWith("sam", null);
       });
     });
@@ -106,25 +112,25 @@ describe("we can start a firebase application", () => {
     describe("Examples from documentation", () => {
       test("delete a user", async () => {
         expect.assertions(1);
-        await this.admin.auth().deleteUser("some-uid");
+        await admin.auth().deleteUser("some-uid");
         expect(mockDeleteUser).toHaveBeenCalledWith("some-uid");
       });
 
       test("verify an ID token", async () => {
         expect.assertions(1);
-        await this.admin.auth().verifyIdToken("token_string", true);
+        await admin.auth().verifyIdToken("token_string", true);
         expect(mockVerifyIdToken).toHaveBeenCalledWith("token_string", true);
       });
 
       test("get user object", async () => {
         expect.assertions(1);
-        await this.admin.auth().getUser("some-uid");
+        await admin.auth().getUser("some-uid");
         expect(mockGetUser).toHaveBeenCalledWith("some-uid");
       });
 
       test("get currentUser object", async () => {
         expect.assertions(2);
-        const currentUser = await this.admin.auth().currentUser;
+        const currentUser = await admin.auth().currentUser;
         expect(currentUser.uid).toEqual("abc123");
         expect(currentUser.data.displayName).toBe("Bob");
       });
@@ -134,7 +140,7 @@ describe("we can start a firebase application", () => {
         const claims = {
           custom: true
         };
-        const token = await this.admin
+        const token = await admin
           .auth()
           .createCustomToken("some-uid", claims);
         expect(mockCreateCustomToken).toHaveBeenCalledWith("some-uid", claims);
@@ -146,7 +152,7 @@ describe("we can start a firebase application", () => {
         const claims = {
           do: "the thing"
         };
-        await this.admin.auth().setCustomUserClaims("some-uid", claims);
+        await admin.auth().setCustomUserClaims("some-uid", claims);
         expect(mockSetCustomUserClaims).toHaveBeenCalledWith(
           "some-uid",
           claims
@@ -175,7 +181,7 @@ describe("we can start a firebase application", () => {
         };
         mockGetUser.mockReturnValueOnce(userRecord);
         expect.assertions(2);
-        const result = await this.admin.auth().getUser(uid);
+        const result = await admin.auth().getUser(uid);
         expect(mockGetUser).toHaveBeenCalledWith(uid);
         expect(result).toStrictEqual(userRecord);
       });
@@ -184,7 +190,7 @@ describe("we can start a firebase application", () => {
         const error = new Error("test");
         expect.assertions(1);
         mockVerifyIdToken.mockRejectedValueOnce(error);
-        const result = await this.admin
+        const result = await admin
           .auth()
           .verifyIdToken("token_string", true)
           .catch(err => err);

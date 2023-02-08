@@ -1,9 +1,9 @@
 import { vi } from "vitest";
 
-const defaultOptions = require("./helpers/defaultMockOptions");
+import defaultOptions from './helpers/defaultMockOptions';
 
-const firestoreStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore } = require("firestore-vi-mock");
+export const firestoreStub = async (overrides, options = defaultOptions) => {
+  const { FakeFirestore, FakeAuth, Query, CollectionReference, DocumentReference, FieldValue, Timestamp, Transaction, FieldPath } = await import("firestore-vitest-mock");
 
   class Firestore extends FakeFirestore {
     constructor() {
@@ -11,19 +11,19 @@ const firestoreStub = (overrides, options = defaultOptions) => {
     }
   }
   return {
-    Query: FakeFirestore.Query,
-    CollectionReference: FakeFirestore.CollectionReference,
-    DocumentReference: FakeFirestore.DocumentReference,
-    FieldValue: FakeFirestore.FieldValue,
-    FieldPath: FakeFirestore.FieldPath,
-    Timestamp: FakeFirestore.Timestamp,
-    Transaction: FakeFirestore.Transaction,
+    Query: Query,
+    CollectionReference: CollectionReference,
+    DocumentReference: DocumentReference,
+    FieldValue: FieldValue,
+    FieldPath: FieldPath,
+    Timestamp: Timestamp,
+    Transaction: Transaction,
     /** @type {Firestore.constructor} */
     Firestore
   };
 };
 
-const mockReactNativeFirestore = (overrides = {}, options = defaultOptions) => {
+export const mockReactNativeFirestore = (overrides = {}, options = defaultOptions) => {
   mockModuleIfFound("@react-native-firebase/firestore", overrides, options);
 };
 
@@ -36,8 +36,3 @@ function mockModuleIfFound(moduleName, overrides, options) {
     console.info(`Module ${moduleName} not found, mocking skipped.`);
   }
 }
-
-module.exports = {
-  firestoreStub,
-  mockReactNativeFirestore
-};

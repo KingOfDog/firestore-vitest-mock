@@ -1,8 +1,10 @@
-import { beforeEach, describe, expect, vi, test } from "vitest";
+import { beforeEach, describe, expect, vi, test, beforeAll } from "vitest";
 
-const {
+import {
   mockFirebase,
   FakeFirestore,
+} from "..";
+import {
   mockRunTransaction,
   mockDelete,
   mockDeleteTransaction,
@@ -14,20 +16,27 @@ const {
   mockGetTransaction,
   mockGetAll,
   mockGetAllTransaction,
-  mockCreateTransaction
-} = require("../mocks/firestore");
+  mockCreateTransaction,
+  Transaction
+} from "../mocks/firestore";
 
 describe("Transactions", () => {
   mockFirebase({
     database: {}
   });
-  const firebase = require("firebase");
-  firebase.initializeApp({
-    apiKey: "### FIREBASE API KEY ###",
-    authDomain: "### FIREBASE AUTH DOMAIN ###",
-    projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+
+  let firebase;
+  let db;
+
+  beforeAll(async () => {
+    firebase = await import("firebase");
+    firebase.initializeApp({
+      apiKey: "### FIREBASE API KEY ###",
+      authDomain: "### FIREBASE AUTH DOMAIN ###",
+      projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+    });
+    db = firebase.firestore();
   });
-  const db = firebase.firestore();
 
   beforeEach(() => {
     vi.resetModules();
@@ -35,7 +44,7 @@ describe("Transactions", () => {
   });
 
   test("it returns a Promise", () => {
-    const result = db.runTransaction(async () => {});
+    const result = db.runTransaction(async () => { });
 
     expect(result).toBeInstanceOf(Promise);
     expect(mockRunTransaction).toHaveBeenCalled();
@@ -52,7 +61,7 @@ describe("Transactions", () => {
 
     expect(result).toBeInstanceOf(Promise);
     expect(runner).toHaveBeenCalled();
-    expect(runner.mock.calls[0][0]).toBeInstanceOf(FakeFirestore.Transaction);
+    expect(runner.mock.calls[0][0]).toBeInstanceOf(Transaction);
   });
 
   test("mockGet is accessible", async () => {
@@ -85,7 +94,7 @@ describe("Transactions", () => {
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
 
-      expect(result).toBeInstanceOf(FakeFirestore.Transaction);
+      expect(result).toBeInstanceOf(Transaction);
       expect(mockSet).toHaveBeenCalledWith(newData, options);
     });
     expect(mockSetTransaction).toHaveBeenCalled();
@@ -100,7 +109,7 @@ describe("Transactions", () => {
       const newData = { foo: "bar" };
       const result = transaction.update(ref, newData);
 
-      expect(result).toBeInstanceOf(FakeFirestore.Transaction);
+      expect(result).toBeInstanceOf(Transaction);
       expect(mockUpdate).toHaveBeenCalledWith(newData);
     });
     expect(mockUpdateTransaction).toHaveBeenCalled();
@@ -114,7 +123,7 @@ describe("Transactions", () => {
     await db.runTransaction(async transaction => {
       const result = transaction.delete(ref);
 
-      expect(result).toBeInstanceOf(FakeFirestore.Transaction);
+      expect(result).toBeInstanceOf(Transaction);
       expect(mockDelete).toHaveBeenCalled();
     });
     expect(mockDeleteTransaction).toHaveBeenCalled();

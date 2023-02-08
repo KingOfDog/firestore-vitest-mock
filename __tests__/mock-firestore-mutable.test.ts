@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-const {
+import {
   FakeFirestore,
   mockCollection,
   mockDoc
-} = require("../mocks/firestore");
+} from "../mocks/firestore";
 
 describe("database mutations", () => {
   beforeEach(() => {

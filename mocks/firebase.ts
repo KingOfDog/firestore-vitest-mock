@@ -1,28 +1,28 @@
 import { vi } from 'vitest';
 
-const mockInitializeApp = vi.fn();
-const mockCert = vi.fn();
+import defaultOptions from './helpers/defaultMockOptions';
 
-const defaultOptions = require('./helpers/defaultMockOptions');
+export const mockInitializeApp = vi.fn();
+export const mockCert = vi.fn();
 
-const firebaseStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore, FakeAuth } = require('firestore-vi-mock');
+export const firebaseStub = async (overrides, options = defaultOptions) => {
+  const { FakeFirestore, FakeAuth, Query, CollectionReference, DocumentReference, FieldValue, Timestamp, Transaction, FieldPath } = await import('firestore-vitest-mock');
 
   // Prepare namespaced classes
   function firestoreConstructor() {
     return new FakeFirestore(overrides.database, options);
   }
 
-  firestoreConstructor.Query = FakeFirestore.Query;
-  firestoreConstructor.CollectionReference = FakeFirestore.CollectionReference;
-  firestoreConstructor.DocumentReference = FakeFirestore.DocumentReference;
-  firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
-  firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
-  firestoreConstructor.Transaction = FakeFirestore.Transaction;
-  firestoreConstructor.FieldPath = FakeFirestore.FieldPath;
+  firestoreConstructor.Query = Query;
+  firestoreConstructor.CollectionReference = CollectionReference;
+  firestoreConstructor.DocumentReference = DocumentReference;
+  firestoreConstructor.FieldValue = FieldValue;
+  firestoreConstructor.Timestamp = Timestamp;
+  firestoreConstructor.Transaction = Transaction;
+  firestoreConstructor.FieldPath = FieldPath;
 
   //Remove methods which do not exist in Firebase
-  delete firestoreConstructor.DocumentReference.prototype.listCollections;
+  // delete DocumentReference.prototype.listCollections;
 
   // The Firebase mock
   return {
@@ -40,24 +40,17 @@ const firebaseStub = (overrides, options = defaultOptions) => {
   };
 };
 
-const mockFirebase = (overrides = {}, options = defaultOptions) => {
+export const mockFirebase = (overrides = {}, options = defaultOptions) => {
   mockModuleIfFound('firebase', overrides, options);
   mockModuleIfFound('firebase-admin', overrides, options);
 };
 
-function mockModuleIfFound(moduleName, overrides, options) {
+async function mockModuleIfFound(moduleName, overrides, options) {
   try {
-    require.resolve(moduleName);
-    vi.doMock(moduleName, () => firebaseStub(overrides, options));
+    // await import.meta.resolve(moduleName);
+    vi.mock(moduleName, () => firebaseStub(overrides, options));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.info(`Module ${moduleName} not found, mocking skipped.`);
   }
 }
-
-module.exports = {
-  firebaseStub,
-  mockFirebase,
-  mockInitializeApp,
-  mockCert,
-};

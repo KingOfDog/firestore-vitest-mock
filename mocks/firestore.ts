@@ -6,39 +6,44 @@ import * as query from "./query";
 import * as transaction from "./transaction";
 import * as path from "./path";
 
-import * as buildDocFromHash from "./helpers/buildDocFromHash";
-import * as buildQuerySnapShot from "./helpers/buildQuerySnapShot";
-import { CollectionReference, DocumentReference, FakeFirestoreDatabase, FirestoreBatch } from './firestore.model';
+import buildDocFromHash from "./helpers/buildDocFromHash";
+import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
 import { Query } from './query';
 import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
+import { Transaction } from './transaction';
 
+export * from './query';
+export * from './transaction';
+export * from './timestamp';
+export * from './fieldValue';
+export * from './path';
 
-const mockCollectionGroup = vi.fn();
-const mockBatch = vi.fn();
-const mockRunTransaction = vi.fn();
+export const mockCollectionGroup = vi.fn();
+export const mockBatch = vi.fn();
+export const mockRunTransaction = vi.fn();
 
-const mockSettings = vi.fn();
-const mockUseEmulator = vi.fn();
-const mockCollection = vi.fn();
-const mockDoc = vi.fn();
-const mockUpdate = vi.fn();
-const mockSet = vi.fn();
-const mockAdd = vi.fn();
-const mockDelete = vi.fn();
-const mockListDocuments = vi.fn();
-const mockListCollections = vi.fn();
+export const mockSettings = vi.fn();
+export const mockUseEmulator = vi.fn();
+export const mockCollection = vi.fn();
+export const mockDoc = vi.fn();
+export const mockUpdate = vi.fn();
+export const mockSet = vi.fn();
+export const mockAdd = vi.fn();
+export const mockDelete = vi.fn();
+export const mockListDocuments = vi.fn();
+export const mockListCollections = vi.fn();
 
-const mockBatchDelete = vi.fn();
-const mockBatchCommit = vi.fn();
-const mockBatchUpdate = vi.fn();
-const mockBatchSet = vi.fn();
+export const mockBatchDelete = vi.fn();
+export const mockBatchCommit = vi.fn();
+export const mockBatchUpdate = vi.fn();
+export const mockBatchSet = vi.fn();
 
-const mockOnSnapShot = vi.fn();
+export const mockOnSnapShot = vi.fn();
 
 const _randomId = () =>
   Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 
-class FakeFirestore {
+export class FakeFirestore {
   database: FakeFirestoreDatabase;
   options: Record<string, never>;
   query: Query;
@@ -61,11 +66,11 @@ class FakeFirestore {
   getAll(...params): Promise<Array<MockedQuerySnapshot>> {
     //Strip ReadOptions object
     params = params.filter(
-      arg => arg instanceof FakeFirestore.DocumentReference
+      arg => arg instanceof DocumentReference
     );
 
     return Promise.all(
-      transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get())
+      transaction.mockGetAll(...params) || [...params].map(r => r.get())
     );
   }
 
@@ -190,7 +195,7 @@ class FakeFirestore {
 
   runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
-    return updateFunction(new FakeFirestore.Transaction());
+    return updateFunction(new Transaction());
   }
 
   _updateData(path, object, merge) {
@@ -240,19 +245,13 @@ class FakeFirestore {
   }
 }
 
-FakeFirestore.Query = query.Query;
-FakeFirestore.FieldValue = fieldValue.FieldValue;
-FakeFirestore.Timestamp = timestamp.Timestamp;
-FakeFirestore.Transaction = transaction.Transaction;
-FakeFirestore.FieldPath = path.FieldPath;
-
 /*
  * ============
  *  Document Reference
  * ============
  */
 
-FakeFirestore.DocumentReference = class {
+export class DocumentReference {
   constructor(id, parent) {
     this.id = id;
     this.parent = parent;
@@ -265,7 +264,7 @@ FakeFirestore.DocumentReference = class {
 
   collection(collectionName) {
     mockCollection(...arguments);
-    return new FakeFirestore.CollectionReference(collectionName, this);
+    return new CollectionReference(collectionName, this);
   }
 
   listCollections() {
@@ -279,7 +278,7 @@ FakeFirestore.DocumentReference = class {
     const collectionRefs = [];
     for (const collectionId of Object.keys(document._collections)) {
       collectionRefs.push(
-        new FakeFirestore.CollectionReference(collectionId, this)
+        new CollectionReference(collectionId, this)
       );
     }
 
@@ -320,7 +319,7 @@ FakeFirestore.DocumentReference = class {
   }
 
   get() {
-    query.mocks.mockGet(...arguments);
+    query.mockGet(...arguments);
     const data = this._get();
     return Promise.resolve(data);
   }
@@ -353,7 +352,7 @@ FakeFirestore.DocumentReference = class {
 
   isEqual(other) {
     return (
-      other instanceof FakeFirestore.DocumentReference &&
+      other instanceof DocumentReference &&
       other.firestore === this.firestore &&
       other.path === this.path
     );
@@ -447,7 +446,7 @@ FakeFirestore.DocumentReference = class {
   }
 
   withConverter() {
-    query.mocks.mockWithConverter(...arguments);
+    query.mockWithConverter(...arguments);
     return this;
   }
 };
@@ -458,7 +457,7 @@ FakeFirestore.DocumentReference = class {
  * ============
  */
 
-FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
+export class CollectionReference extends Query {
   constructor(id, parent, firestore) {
     super(id, firestore || parent.firestore);
 
@@ -473,14 +472,14 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   add(object) {
     mockAdd(...arguments);
-    const newDoc = new FakeFirestore.DocumentReference(_randomId(), this);
+    const newDoc = new DocumentReference(_randomId(), this);
     this.firestore._updateData(newDoc.path, object);
     return Promise.resolve(newDoc);
   }
 
   doc(id = _randomId()) {
     mockDoc(id);
-    return new FakeFirestore.DocumentReference(id, this, this.firestore);
+    return new DocumentReference(id, this, this.firestore);
   }
 
   /**
@@ -529,13 +528,13 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     // subcollections: see https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#listDocuments
     return Promise.resolve(
       this._records().map(
-        rec => new FakeFirestore.DocumentReference(rec.id, this, this.firestore)
+        rec => new DocumentReference(rec.id, this, this.firestore)
       )
     );
   }
 
   get() {
-    query.mocks.mockGet(...arguments);
+    query.mockGet(...arguments);
     return Promise.resolve(this._get());
   }
 
@@ -543,7 +542,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     // Make sure we have a 'good enough' document reference
     const records = this._records().map(rec => ({
       ...rec,
-      _ref: new FakeFirestore.DocumentReference(rec.id, this, this.firestore)
+      _ref: new DocumentReference(rec.id, this, this.firestore)
     }));
     // Firestore does not return documents with no local data
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
@@ -556,35 +555,9 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   isEqual(other) {
     return (
-      other instanceof FakeFirestore.CollectionReference &&
+      other instanceof CollectionReference &&
       other.firestore === this.firestore &&
       other.path === this.path
     );
   }
-};
-
-module.exports = {
-  FakeFirestore,
-  mockBatch,
-  mockRunTransaction,
-  mockCollection,
-  mockCollectionGroup,
-  mockDoc,
-  mockAdd,
-  mockDelete,
-  mockUpdate,
-  mockSet,
-  mockSettings,
-  mockUseEmulator,
-  mockBatchDelete,
-  mockBatchCommit,
-  mockBatchUpdate,
-  mockBatchSet,
-  mockOnSnapShot,
-  mockListDocuments,
-  mockListCollections,
-  ...query.mocks,
-  ...transaction.mocks,
-  ...fieldValue.mocks,
-  ...timestamp.mocks
 };
