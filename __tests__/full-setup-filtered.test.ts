@@ -4,10 +4,10 @@ import { mockSettings, mockUseEmulator, mockAdd, mockCollectionGroup, mockSet, m
 import { mockSelect, mockGet, mockWhere, mockQueryOnSnapshot, mockWithConverter } from '../mocks/query';
 import { mockTimestampNow, Timestamp } from '../mocks/timestamp';
 
-const filters = false;
+const filters = true;
 describe(
-  "we can start a firebase application (query filters: false)",
-  () => {
+  "we can start a firebase application (query filters: true)",
+  async () => {
     const flushPromises = () => new Promise(setImmediate);
 
     mockFirebase(

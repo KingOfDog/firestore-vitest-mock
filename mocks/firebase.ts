@@ -22,7 +22,7 @@ export const firebaseStub = async (overrides, options = defaultOptions) => {
   firestoreConstructor.FieldPath = FieldPath;
 
   //Remove methods which do not exist in Firebase
-  // delete DocumentReference.prototype.listCollections;
+  delete DocumentReference.prototype.listCollections;
 
   // The Firebase mock
   return {
@@ -48,7 +48,7 @@ export const mockFirebase = (overrides = {}, options = defaultOptions) => {
 async function mockModuleIfFound(moduleName, overrides, options) {
   try {
     // await import.meta.resolve(moduleName);
-    vi.mock(moduleName, () => firebaseStub(overrides, options));
+    vi.doMock(moduleName, () => firebaseStub(overrides, options));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.info(`Module ${moduleName} not found, mocking skipped.`);
