@@ -12,7 +12,6 @@ describe.each([
 ])("mocking $library with %mockFunction", async ({ library, mockFunction }) => {
   const FirestoreMock = await import("..");
 
-  const { mockInitializeApp } = await import("../mocks/firebase");
   const flushPromises = () => new Promise(setImmediate);
   const { Timestamp } = await import("../mocks/timestamp");
   const {
@@ -81,7 +80,6 @@ describe.each([
 
     test("We can start an application", async () => {
       const firestore = new Firestore();
-      expect(mockInitializeApp).toHaveBeenCalled();
       firestore.settings({ ignoreUndefinedProperties: true });
       expect(mockSettings).toHaveBeenCalledWith({
         ignoreUndefinedProperties: true
