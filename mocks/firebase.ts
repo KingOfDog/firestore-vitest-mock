@@ -1,10 +1,12 @@
-const mockInitializeApp = jest.fn();
-const mockCert = jest.fn();
+import { vi } from 'vitest';
+
+const mockInitializeApp = vi.fn();
+const mockCert = vi.fn();
 
 const defaultOptions = require('./helpers/defaultMockOptions');
 
 const firebaseStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');
+  const { FakeFirestore, FakeAuth } = require('firestore-vi-mock');
 
   // Prepare namespaced classes
   function firestoreConstructor() {
@@ -46,7 +48,7 @@ const mockFirebase = (overrides = {}, options = defaultOptions) => {
 function mockModuleIfFound(moduleName, overrides, options) {
   try {
     require.resolve(moduleName);
-    jest.doMock(moduleName, () => firebaseStub(overrides, options));
+    vi.doMock(moduleName, () => firebaseStub(overrides, options));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.info(`Module ${moduleName} not found, mocking skipped.`);

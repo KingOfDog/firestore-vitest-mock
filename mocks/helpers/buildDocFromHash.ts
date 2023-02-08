@@ -1,15 +1,21 @@
-const timestamp = require('../timestamp');
+import { DocumentHash, MockedDocument } from "./buildDocFromHash.model";
 
-module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
+import { Timestamp } from "../timestamp";
+
+export default function buildDocFromHash(
+  hash?: DocumentHash,
+  id?: string,
+  selectFields?: string[]
+): MockedDocument {
   const exists = !!hash || false;
   return {
-    createTime: (hash && hash._createTime) || timestamp.Timestamp.now(),
+    createTime: (hash && hash._createTime) || Timestamp.now(),
     exists,
     id: (hash && hash.id) || id,
     readTime: hash && hash._readTime,
     ref: hash && hash._ref,
     metadata: {
-      hasPendingWrites: 'Server',
+      hasPendingWrites: "Server"
     },
     updateTime: hash && hash._updateTime,
     data() {
@@ -30,7 +36,7 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
 
       if (selectFields !== undefined) {
         copy = Object.keys(copy)
-          .filter(key => key === 'id' || selectFields.includes(key))
+          .filter(key => key === "id" || selectFields.includes(key))
           .reduce((res, key) => ((res[key] = copy[key]), res), {});
       }
 
@@ -39,7 +45,7 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
     get(fieldPath) {
       // The field path can be compound: from the firestore docs
       //  fieldPath The path (e.g. 'foo' or 'foo.bar') to a specific field.
-      const parts = fieldPath.split('.');
+      const parts = fieldPath.split(".");
       const data = this.data();
       return parts.reduce((acc, part, index) => {
         const value = acc[part];
@@ -53,6 +59,6 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
         // if there is a value, return it
         return value;
       }, data);
-    },
+    }
   };
-};
+}

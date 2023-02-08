@@ -1,4 +1,4 @@
-class Path {
+export class Path {
   constructor(segments) {
     this.segments = segments;
   }
@@ -25,7 +25,7 @@ class Path {
   }
 }
 
-class FieldPath extends Path {
+export class FieldPath extends Path {
   constructor(...segments) {
     super(segments);
   }
@@ -36,7 +36,4 @@ class FieldPath extends Path {
     return super.isEqual(other);
   }
 }
-FieldPath._DOCUMENT_ID = new FieldPath('__name__');
-
-exports.FieldPath = FieldPath;
-exports.Path = Path;
+FieldPath._DOCUMENT_ID = new FieldPath("__name__");

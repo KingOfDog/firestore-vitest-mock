@@ -1,8 +1,10 @@
-const mockArrayUnionFieldValue = jest.fn();
-const mockArrayRemoveFieldValue = jest.fn();
-const mockDeleteFieldValue = jest.fn();
-const mockIncrementFieldValue = jest.fn();
-const mockServerTimestampFieldValue = jest.fn();
+import { vi } from "vitest";
+
+const mockArrayUnionFieldValue = vi.fn();
+const mockArrayRemoveFieldValue = vi.fn();
+const mockDeleteFieldValue = vi.fn();
+const mockIncrementFieldValue = vi.fn();
+const mockServerTimestampFieldValue = vi.fn();
 
 class FieldValue {
   constructor(type, value) {
@@ -11,7 +13,11 @@ class FieldValue {
   }
 
   isEqual(other) {
-    return other instanceof FieldValue && other.type === this.type && other.value === this.value;
+    return (
+      other instanceof FieldValue &&
+      other.type === this.type &&
+      other.value === this.value
+    );
   }
 
   static arrayUnion(elements = []) {
@@ -19,7 +25,7 @@ class FieldValue {
     if (!Array.isArray(elements)) {
       elements = [elements];
     }
-    return new FieldValue('arrayUnion', elements);
+    return new FieldValue("arrayUnion", elements);
   }
 
   static arrayRemove(elements) {
@@ -27,22 +33,22 @@ class FieldValue {
     if (!Array.isArray(elements)) {
       elements = [elements];
     }
-    return new FieldValue('arrayRemove', elements);
+    return new FieldValue("arrayRemove", elements);
   }
 
   static increment(amount = 1) {
     mockIncrementFieldValue(...arguments);
-    return new FieldValue('increment', amount);
+    return new FieldValue("increment", amount);
   }
 
   static serverTimestamp() {
     mockServerTimestampFieldValue(...arguments);
-    return new FieldValue('serverTimestamp');
+    return new FieldValue("serverTimestamp");
   }
 
   static delete() {
     mockDeleteFieldValue(...arguments);
-    return new FieldValue('delete');
+    return new FieldValue("delete");
   }
 }
 
@@ -53,6 +59,6 @@ module.exports = {
     mockArrayRemoveFieldValue,
     mockDeleteFieldValue,
     mockIncrementFieldValue,
-    mockServerTimestampFieldValue,
-  },
+    mockServerTimestampFieldValue
+  }
 };

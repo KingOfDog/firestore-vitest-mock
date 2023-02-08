@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import type { Query } from './query';
 import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
 
@@ -11,11 +12,11 @@ export class Transaction {
 }
 
 export const mocks: {
-  mockGetAll: jest.Mock;
-  mockGetAllTransaction: jest.Mock;
-  mockGetTransaction: jest.Mock;
-  mockSetTransaction: jest.Mock;
-  mockUpdateTransaction: jest.Mock;
-  mockDeleteTransaction: jest.Mock;
-  mockCreateTransaction: jest.Mock;
+  mockGetAll: Mock;
+  mockGetAllTransaction: Mock;
+  mockGetTransaction: Mock;
+  mockSetTransaction: Mock;
+  mockUpdateTransaction: Mock;
+  mockDeleteTransaction: Mock;
+  mockCreateTransaction: Mock;
 };

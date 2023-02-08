@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import type { FieldValue } from './fieldValue';
 import type { Query } from './query';
 import type { Timestamp } from './timestamp';
@@ -7,20 +8,20 @@ import type { FieldPath } from './path';
 import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
 import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
 
-interface DatabaseDocument extends DocumentData {
+export interface DatabaseDocument extends DocumentData {
   id: string;
   _collections?: DatabaseCollections;
 }
 
-interface DatabaseCollections {
+export interface DatabaseCollections {
   [collectionName: string]: Array<DatabaseDocument> | undefined;
 }
 
-interface SetOptions {
+export interface SetOptions {
   merge?: boolean;
 }
 
-interface FirestoreBatch {
+export interface FirestoreBatch {
   delete(): FirestoreBatch;
   set(doc: DocumentReference, data: DocumentData, options?: SetOptions): FirestoreBatch;
   update(doc: DocumentReference, data: DocumentData): FirestoreBatch;
@@ -43,7 +44,7 @@ export class FakeFirestore {
   options: Record<string, never>;
   query: Query;
   collectionName: string;
-  
+
   constructor(stubbedDatabase?: DatabaseCollections, options?: Record<string, never>);
 
   getAll(): Array<MockedQuerySnapshot>;
@@ -56,12 +57,12 @@ export class FakeFirestore {
   runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T>;
 }
 
-declare class DocumentReference {
+export declare class DocumentReference {
   id: string;
   parent: CollectionReference;
   firestore: FakeFirestore;
   path: string;
-  
+
   constructor(id: string, parent: CollectionReference);
 
   collection(collectionName: string): CollectionReference;
@@ -94,11 +95,11 @@ declare class DocumentReference {
   startAt(): never;
 }
 
-declare class CollectionReference extends FakeFirestore.Query {
+export declare class CollectionReference extends Query {
   id: string;
   parent: DocumentReference;
   path: string;
-  
+
   constructor(id: string, parent: DocumentReference, firestore?: FakeFirestore);
 
   doc(id?: string): DocumentReference;
@@ -115,59 +116,59 @@ declare class CollectionReference extends FakeFirestore.Query {
 }
 
 // Mocks exported from this module
-export const mockBatch: jest.Mock;
-export const mockRunTransaction: jest.Mock;
+export const mockBatch: Mock;
+export const mockRunTransaction: Mock;
 
-export const mockCollection: jest.Mock;
-export const mockCollectionGroup: jest.Mock;
-export const mockDoc: jest.Mock;
-export const mockUpdate: jest.Mock;
-export const mockSet: jest.Mock;
-export const mockAdd: jest.Mock;
-export const mockDelete: jest.Mock;
-export const mockSettings: jest.Mock;
+export const mockCollection: Mock;
+export const mockCollectionGroup: Mock;
+export const mockDoc: Mock;
+export const mockUpdate: Mock;
+export const mockSet: Mock;
+export const mockAdd: Mock;
+export const mockDelete: Mock;
+export const mockSettings: Mock;
 
 // FIXME: We should decide whether this should be exported from auth or firestore
-export const mockUseEmulator: jest.Mock;
-export const mockListDocuments: jest.Mock;
+export const mockUseEmulator: Mock;
+export const mockListDocuments: Mock;
 
-export const mockBatchDelete: jest.Mock;
-export const mockBatchCommit: jest.Mock;
-export const mockBatchUpdate: jest.Mock;
-export const mockBatchSet: jest.Mock;
+export const mockBatchDelete: Mock;
+export const mockBatchCommit: Mock;
+export const mockBatchUpdate: Mock;
+export const mockBatchSet: Mock;
 
-export const mockOnSnapShot: jest.Mock;
+export const mockOnSnapShot: Mock;
 
 // Mocks exported from FieldValue
-export const mockArrayUnionFieldValue: jest.Mock;
-export const mockArrayRemoveFieldValue: jest.Mock;
-export const mockDeleteFieldValue: jest.Mock;
-export const mockIncrementFieldValue: jest.Mock;
-export const mockServerTimestampFieldValue: jest.Mock;
+export const mockArrayUnionFieldValue: Mock;
+export const mockArrayRemoveFieldValue: Mock;
+export const mockDeleteFieldValue: Mock;
+export const mockIncrementFieldValue: Mock;
+export const mockServerTimestampFieldValue: Mock;
 
 // Mocks exported from Query
-export const mockGet: jest.Mock;
-export const mockWhere: jest.Mock;
-export const mockLimit: jest.Mock;
-export const mockOrderBy: jest.Mock;
-export const mockOffset: jest.Mock;
-export const mockStartAfter: jest.Mock;
-export const mockStartAt: jest.Mock;
-export const mockQueryOnSnapshot: jest.Mock;
-export const mockWithConverter: jest.Mock;
+export const mockGet: Mock;
+export const mockWhere: Mock;
+export const mockLimit: Mock;
+export const mockOrderBy: Mock;
+export const mockOffset: Mock;
+export const mockStartAfter: Mock;
+export const mockStartAt: Mock;
+export const mockQueryOnSnapshot: Mock;
+export const mockWithConverter: Mock;
 
 // Mocks exported from Timestamp
-export const mockTimestampToDate: jest.Mock;
-export const mockTimestampToMillis: jest.Mock;
-export const mockTimestampFromDate: jest.Mock;
-export const mockTimestampFromMillis: jest.Mock;
-export const mockTimestampNow: jest.Mock;
+export const mockTimestampToDate: Mock;
+export const mockTimestampToMillis: Mock;
+export const mockTimestampFromDate: Mock;
+export const mockTimestampFromMillis: Mock;
+export const mockTimestampNow: Mock;
 
 // Mocks exported from Transaction
-export const mockGetAll: jest.Mock;
-export const mockGetAllTransaction: jest.Mock;
-export const mockGetTransaction: jest.Mock;
-export const mockSetTransaction: jest.Mock;
-export const mockUpdateTransaction: jest.Mock;
-export const mockDeleteTransaction: jest.Mock;
-export const mockCreateTransaction: jest.Mock;
+export const mockGetAll: Mock;
+export const mockGetAllTransaction: Mock;
+export const mockGetTransaction: Mock;
+export const mockSetTransaction: Mock;
+export const mockUpdateTransaction: Mock;
+export const mockDeleteTransaction: Mock;
+export const mockCreateTransaction: Mock;

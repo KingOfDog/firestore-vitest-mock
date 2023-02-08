@@ -1,5 +1,8 @@
-const { mockFirebase, FakeFirestore } = require('firestore-jest-mock');
+import { beforeEach, describe, expect, vi, test } from "vitest";
+
 const {
+  mockFirebase,
+  FakeFirestore,
   mockRunTransaction,
   mockDelete,
   mockDeleteTransaction,
@@ -11,40 +14,40 @@ const {
   mockGetTransaction,
   mockGetAll,
   mockGetAllTransaction,
-  mockCreateTransaction,
-} = require('firestore-jest-mock/mocks/firestore');
+  mockCreateTransaction
+} = require("../mocks/firestore");
 
-describe('Transactions', () => {
+describe("Transactions", () => {
   mockFirebase({
-    database: {},
+    database: {}
   });
-  const firebase = require('firebase');
+  const firebase = require("firebase");
   firebase.initializeApp({
-    apiKey: '### FIREBASE API KEY ###',
-    authDomain: '### FIREBASE AUTH DOMAIN ###',
-    projectId: '### CLOUD FIRESTORE PROJECT ID ###',
+    apiKey: "### FIREBASE API KEY ###",
+    authDomain: "### FIREBASE AUTH DOMAIN ###",
+    projectId: "### CLOUD FIRESTORE PROJECT ID ###"
   });
   const db = firebase.firestore();
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
   });
 
-  test('it returns a Promise', () => {
+  test("it returns a Promise", () => {
     const result = db.runTransaction(async () => {});
 
     expect(result).toBeInstanceOf(Promise);
     expect(mockRunTransaction).toHaveBeenCalled();
   });
 
-  test('it returns the same value returned by the transaction callback', async () => {
-    const result = await db.runTransaction(() => 'Success!');
-    expect(result).toBe('Success!');
+  test("it returns the same value returned by the transaction callback", async () => {
+    const result = await db.runTransaction(() => "Success!");
+    expect(result).toBe("Success!");
   });
 
-  test('it provides a Transaction object', () => {
-    const runner = jest.fn().mockReturnValue(Promise.resolve());
+  test("it provides a Transaction object", () => {
+    const runner = vi.fn().mockReturnValue(Promise.resolve());
     const result = db.runTransaction(runner);
 
     expect(result).toBeInstanceOf(Promise);
@@ -52,10 +55,10 @@ describe('Transactions', () => {
     expect(runner.mock.calls[0][0]).toBeInstanceOf(FakeFirestore.Transaction);
   });
 
-  test('mockGet is accessible', async () => {
+  test("mockGet is accessible", async () => {
     expect.assertions(7);
     expect(mockGetTransaction).not.toHaveBeenCalled();
-    const ref = db.collection('some').doc('body');
+    const ref = db.collection("some").doc("body");
 
     await db.runTransaction(async transaction => {
       // `get` should return a promise
@@ -65,20 +68,20 @@ describe('Transactions', () => {
 
       // Calling `get` on transaction no longer calls `get` on `ref`
       expect(mockGet).not.toHaveBeenCalled();
-      expect(doc).toHaveProperty('id', 'body');
-      expect(doc).toHaveProperty('exists', false);
+      expect(doc).toHaveProperty("id", "body");
+      expect(doc).toHaveProperty("exists", false);
       expect(doc.data()).toBeUndefined();
     });
     expect(mockGetTransaction).toHaveBeenCalled();
   });
 
-  test('mockSet is accessible', async () => {
+  test("mockSet is accessible", async () => {
     expect.assertions(4);
     expect(mockSetTransaction).not.toHaveBeenCalled();
-    const ref = db.collection('some').doc('body');
+    const ref = db.collection("some").doc("body");
 
     await db.runTransaction(transaction => {
-      const newData = { foo: 'bar' };
+      const newData = { foo: "bar" };
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
 
@@ -88,13 +91,13 @@ describe('Transactions', () => {
     expect(mockSetTransaction).toHaveBeenCalled();
   });
 
-  test('mockUpdate is accessible', async () => {
+  test("mockUpdate is accessible", async () => {
     expect.assertions(4);
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
-    const ref = db.collection('some').doc('body');
+    const ref = db.collection("some").doc("body");
 
     await db.runTransaction(transaction => {
-      const newData = { foo: 'bar' };
+      const newData = { foo: "bar" };
       const result = transaction.update(ref, newData);
 
       expect(result).toBeInstanceOf(FakeFirestore.Transaction);
@@ -103,10 +106,10 @@ describe('Transactions', () => {
     expect(mockUpdateTransaction).toHaveBeenCalled();
   });
 
-  test('mockDelete is accessible', async () => {
+  test("mockDelete is accessible", async () => {
     expect.assertions(4);
     expect(mockDeleteTransaction).not.toHaveBeenCalled();
-    const ref = db.collection('some').doc('body');
+    const ref = db.collection("some").doc("body");
 
     await db.runTransaction(async transaction => {
       const result = transaction.delete(ref);
@@ -117,11 +120,11 @@ describe('Transactions', () => {
     expect(mockDeleteTransaction).toHaveBeenCalled();
   });
 
-  test('mockGetAll is accessible', async () => {
+  test("mockGetAll is accessible", async () => {
     expect.assertions(4);
     expect(mockGetAllTransaction).not.toHaveBeenCalled();
-    const ref1 = db.collection('some').doc('body');
-    const ref2 = ref1.collection('once').doc('told');
+    const ref1 = db.collection("some").doc("body");
+    const ref2 = ref1.collection("once").doc("told");
 
     await db.runTransaction(async transaction => {
       // FIXME: getAll is not defined on the client library, so this is a shot in the dark
@@ -133,17 +136,17 @@ describe('Transactions', () => {
     expect(mockGetAllTransaction).toHaveBeenCalled();
   });
 
-  test('mockCreateTransaction is accessible', async () => {
+  test("mockCreateTransaction is accessible", async () => {
     expect.assertions(2);
     expect(mockCreateTransaction).not.toHaveBeenCalled();
     // Example from documentation
     // https://googleapis.dev/nodejs/firestore/latest/Transaction.html#create-examples
 
     await db.runTransaction(async transaction => {
-      const documentRef = db.doc('col/doc');
+      const documentRef = db.doc("col/doc");
       return transaction.get(documentRef).then(doc => {
         if (!doc.exists) {
-          transaction.create(documentRef, { foo: 'bar' });
+          transaction.create(documentRef, { foo: "bar" });
         }
       });
     });

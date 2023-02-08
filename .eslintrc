@@ -1,23 +1,20 @@
 {
   "root": true,
   "ignorePatterns": ["dist", "node_modules"],
-  "extends": ["@upstatement", "plugin:jest/recommended"],
-  "plugins": ["jest"],
   "parserOptions": {
     "sourceType": "module"
   },
   "env": {
     "browser": true,
     "node": true,
-    "es6": true,
-    "jest": true
+    "es6": true
   },
   "overrides": [
     {
       "files": ["*.ts"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
-        "project": "./tsconfig.json",
+        "project": "./tsconfig.dev.json",
         "tsconfigRootDir": "."
       },
       "plugins": ["@typescript-eslint"],

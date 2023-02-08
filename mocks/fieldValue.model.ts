@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 type FieldValueType = 'arrayUnion' | 'arrayRemove' | 'increment' | 'serverTimestamp' | 'delete';
 
 export class FieldValue {
@@ -13,9 +15,9 @@ export class FieldValue {
 }
 
 export const mocks: {
-  mockArrayUnionFieldValue: jest.Mock;
-  mockArrayRemoveFieldValue: jest.Mock;
-  mockDeleteFieldValue: jest.Mock;
-  mockIncrementFieldValue: jest.Mock;
-  mockServerTimestampFieldValue: jest.Mock;
+  mockArrayUnionFieldValue: Mock;
+  mockArrayRemoveFieldValue: Mock;
+  mockDeleteFieldValue: Mock;
+  mockIncrementFieldValue: Mock;
+  mockServerTimestampFieldValue: Mock;
 };

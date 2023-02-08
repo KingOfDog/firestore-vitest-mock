@@ -1,31 +1,33 @@
-const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
+import { vi } from "vitest";
+import { FakeFirestore } from './firestore.model';
 
-const mockGet = jest.fn();
-const mockSelect = jest.fn();
-const mockWhere = jest.fn();
-const mockLimit = jest.fn();
-const mockOrderBy = jest.fn();
-const mockOffset = jest.fn();
-const mockStartAfter = jest.fn();
-const mockStartAt = jest.fn();
-const mockQueryOnSnapshot = jest.fn();
-const mockWithConverter = jest.fn();
+import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
+import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
 
-class Query {
-  constructor(collectionName, firestore, isGroupQuery = false) {
-    this.collectionName = collectionName;
-    this.firestore = firestore;
-    this.filters = [];
-    this.selectFields = undefined;
-    this.isGroupQuery = isGroupQuery;
+export const mockGet = vi.fn();
+export const mockSelect = vi.fn();
+export const mockWhere = vi.fn();
+export const mockLimit = vi.fn();
+export const mockOrderBy = vi.fn();
+export const mockOffset = vi.fn();
+export const mockStartAfter = vi.fn();
+export const mockStartAt = vi.fn();
+export const mockQueryOnSnapshot = vi.fn();
+export const mockWithConverter = vi.fn();
+
+export class Query {
+  private filters = [];
+  private selectFields?;
+
+  constructor(public collectionName: string, private firestore: typeof FakeFirestore, private isGroupQuery = false) {
   }
 
-  get() {
+  get(): Promise<MockedQuerySnapshot> {
     mockGet(...arguments);
     return Promise.resolve(this._get());
   }
 
-  _get() {
+  _get(): MockedQuerySnapshot {
     // Simulate collectionGroup query
 
     // Get Firestore collections whose name match `this.collectionName`; return their documents
@@ -33,9 +35,9 @@ class Query {
 
     const queue = [
       {
-        lastParent: '',
-        collections: this.firestore.database,
-      },
+        lastParent: "",
+        collections: this.firestore.database
+      }
     ];
 
     while (queue.length > 0) {
@@ -43,10 +45,10 @@ class Query {
       const { lastParent, collections } = queue.shift();
 
       Object.entries(collections).forEach(([collectionPath, docs]) => {
-        const prefix = lastParent ? `${lastParent}/` : '';
+        const prefix = lastParent ? `${lastParent}/` : "";
 
         const newLastParent = `${prefix}${collectionPath}`;
-        const lastPathComponent = collectionPath.split('/').pop();
+        const lastPathComponent = collectionPath.split("/").pop();
 
         // If this is a matching collection, grep its documents
         if (lastPathComponent === this.collectionName) {
@@ -55,7 +57,7 @@ class Query {
             const path = `${newLastParent}/${doc.id}`;
             return {
               ...doc,
-              _ref: this.firestore._doc(path),
+              _ref: this.firestore._doc(path)
             };
           });
           requestedRecords.push(...docHashes);
@@ -66,7 +68,7 @@ class Query {
           if (doc._collections) {
             queue.push({
               lastParent: `${prefix}${collectionPath}/${doc.id}`,
-              collections: doc._collections,
+              collections: doc._collections
             });
           }
         });
@@ -78,56 +80,56 @@ class Query {
     return buildQuerySnapShot(
       requestedRecords,
       isFilteringEnabled ? this.filters : undefined,
-      this.selectFields,
+      this.selectFields
     );
   }
 
-  select(...fieldPaths) {
+  select(...fieldPaths): Query {
     this.selectFields = fieldPaths;
     return mockSelect(...fieldPaths) || this;
   }
 
-  where(key, comp, value) {
+  where(key, comp, value): Query {
     const result = mockWhere(...arguments);
     if (result) {
       return result;
     }
 
     // Firestore has been tested to throw an error at this point when trying to compare null as a quantity
-    if (value === null && !['==', '!='].includes(comp)) {
+    if (value === null && !["==", "!="].includes(comp)) {
       throw new Error(
-        `FakeFirebaseError: Invalid query. Null only supports '==' and '!=' comparisons.`,
+        `FakeFirebaseError: Invalid query. Null only supports '==' and '!=' comparisons.`
       );
     }
     this.filters.push({ key, comp, value });
     return result || this;
   }
 
-  offset() {
+  offset(): Query {
     return mockOffset(...arguments) || this;
   }
 
-  limit() {
+  limit(): Query {
     return mockLimit(...arguments) || this;
   }
 
-  orderBy() {
+  orderBy(): Query {
     return mockOrderBy(...arguments) || this;
   }
 
-  startAfter() {
+  startAfter(): Query {
     return mockStartAfter(...arguments) || this;
   }
 
-  startAt() {
+  startAt(): Query {
     return mockStartAt(...arguments) || this;
   }
 
-  withConverter() {
+  withConverter(): Query {
     return mockWithConverter(...arguments) || this;
   }
 
-  onSnapshot() {
+  onSnapshot(): () => void {
     mockQueryOnSnapshot(...arguments);
     const [callback, errorCallback] = arguments;
     try {
@@ -141,22 +143,6 @@ class Query {
     }
 
     // Returns an unsubscribe function
-    return () => {};
+    return () => { };
   }
 }
-
-module.exports = {
-  Query,
-  mocks: {
-    mockGet,
-    mockSelect,
-    mockWhere,
-    mockLimit,
-    mockOrderBy,
-    mockOffset,
-    mockStartAfter,
-    mockStartAt,
-    mockQueryOnSnapshot,
-    mockWithConverter,
-  },
-};

@@ -1,10 +1,12 @@
-const mockGetAll = jest.fn();
-const mockGetAllTransaction = jest.fn();
-const mockGetTransaction = jest.fn();
-const mockSetTransaction = jest.fn();
-const mockUpdateTransaction = jest.fn();
-const mockDeleteTransaction = jest.fn();
-const mockCreateTransaction = jest.fn();
+import { vi } from "vitest";
+
+const mockGetAll = vi.fn();
+const mockGetAllTransaction = vi.fn();
+const mockGetTransaction = vi.fn();
+const mockSetTransaction = vi.fn();
+const mockUpdateTransaction = vi.fn();
+const mockDeleteTransaction = vi.fn();
+const mockCreateTransaction = vi.fn();
 
 class Transaction {
   getAll(...refsOrReadOptions) {
@@ -12,7 +14,9 @@ class Transaction {
     mockGetAllTransaction(...arguments);
     // TODO: Assert that read options, if provided, are the last argument
     // Filter out the read options before calling .get()
-    return Promise.all(refsOrReadOptions.filter(ref => !!ref.get).map(ref => ref.get()));
+    return Promise.all(
+      refsOrReadOptions.filter(ref => !!ref.get).map(ref => ref.get())
+    );
   }
 
   get(ref) {
@@ -58,6 +62,6 @@ module.exports = {
     mockSetTransaction,
     mockUpdateTransaction,
     mockDeleteTransaction,
-    mockCreateTransaction,
-  },
+    mockCreateTransaction
+  }
 };

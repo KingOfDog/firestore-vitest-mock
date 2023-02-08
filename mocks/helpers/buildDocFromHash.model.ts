@@ -1,4 +1,4 @@
-import type { FakeFirestore, FakeFirestoreDatabase } from '../firestore';
+import type { FakeFirestore, FakeFirestoreDatabase } from '../firestore.model';
 
 export type DocumentData = { [field: string]: unknown };
 
@@ -24,5 +24,3 @@ export interface MockedDocument<T = DocumentData> {
   data(): T | undefined;
   get(fieldPath: string): unknown;
 }
-
-export default function buildDocFromHash(hash?: DocumentHash, id?: string, selectFields?: string[]): MockedDocument;

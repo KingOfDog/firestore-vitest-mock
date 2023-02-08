@@ -1,25 +1,27 @@
-const { FakeFirestore } = require('firestore-jest-mock');
+import { beforeEach, describe, expect, vi, test } from "vitest";
+
 const {
+  FakeFirestore,
   mockTimestampToDate,
   mockTimestampToMillis,
-  mockTimestampNow,
-} = require('firestore-jest-mock/mocks/firestore');
-const admin = require('firebase-admin');
+  mockTimestampNow
+} = require("../mocks/firestore");
+const admin = require("firebase-admin");
 const ref = admin.firestore.Timestamp;
 
-describe('Timestamp mock', () => {
-  test('it is equal to itself', () => {
+describe("Timestamp mock", () => {
+  test("it is equal to itself", () => {
     const timestamp = new FakeFirestore.Timestamp(500, 20);
     expect(timestamp.isEqual(timestamp)).toBe(true);
   });
 
-  test('it is equal to a separate instance', () => {
+  test("it is equal to a separate instance", () => {
     const timestamp = new FakeFirestore.Timestamp(500, 20);
     const other = new FakeFirestore.Timestamp(500, 20);
     expect(timestamp.isEqual(other)).toBe(true);
   });
 
-  test('it is not equal to an instance whose properties differ', () => {
+  test("it is not equal to an instance whose properties differ", () => {
     const timestamp = new FakeFirestore.Timestamp(500, 20);
     const diffSeconds = new FakeFirestore.Timestamp(550, 20);
     const diffNano = new FakeFirestore.Timestamp(500, 40);
@@ -29,7 +31,7 @@ describe('Timestamp mock', () => {
     expect(timestamp.isEqual(diffAll)).toBe(false);
   });
 
-  test('it converts itself roughly to a Date representation', () => {
+  test("it converts itself roughly to a Date representation", () => {
     // Since this is a mock (and I'm bad with time maths) we don't expect nanosecond accuracy
     const timestamp = new FakeFirestore.Timestamp(40, 0);
     expect(timestamp.toDate()).toBeInstanceOf(Date);
@@ -37,7 +39,7 @@ describe('Timestamp mock', () => {
     expect(mockTimestampToDate).toHaveBeenCalled();
   });
 
-  test('it allows clients to override the Date representation', () => {
+  test("it allows clients to override the Date representation", () => {
     const timestamp = new FakeFirestore.Timestamp(40, 0);
     const now = new Date();
     mockTimestampToDate.mockReturnValueOnce(now);
@@ -45,7 +47,7 @@ describe('Timestamp mock', () => {
     expect(timestamp.toDate().getSeconds()).toBe(40); // second call should be the original
   });
 
-  test('it converts itself roughly to millisecond representation', () => {
+  test("it converts itself roughly to millisecond representation", () => {
     // The mock only returns 0, but it calls mockTimestampToMillis first, returning its result if defined
     const timestamp = new FakeFirestore.Timestamp(40, 80);
     const now = new Date();
@@ -55,7 +57,7 @@ describe('Timestamp mock', () => {
     expect(mockTimestampToMillis).toHaveBeenCalledTimes(2);
   });
 
-  test('it creates an instance roughly from a Date representation', () => {
+  test("it creates an instance roughly from a Date representation", () => {
     const now = new Date();
     const timestamp = FakeFirestore.Timestamp.fromDate(now);
     expect(timestamp).toBeDefined();
@@ -63,7 +65,7 @@ describe('Timestamp mock', () => {
     expect(timestamp.toDate().getTime()).toBe(now.getTime());
   });
 
-  test('it creates an instance roughly from a millisecond representation', () => {
+  test("it creates an instance roughly from a millisecond representation", () => {
     const date = new Date(0);
     date.setMilliseconds(54000);
     const timestamp = FakeFirestore.Timestamp.fromMillis(54000);
@@ -72,20 +74,20 @@ describe('Timestamp mock', () => {
     expect(timestamp.seconds).toBe(date.getSeconds());
   });
 
-  test('Timestamp.now reports calls to mockTimestampNow', () => {
+  test("Timestamp.now reports calls to mockTimestampNow", () => {
     expect(mockTimestampNow).not.toHaveBeenCalled();
     const timestamp = FakeFirestore.Timestamp.now();
     expect(timestamp).toBeInstanceOf(FakeFirestore.Timestamp);
     expect(mockTimestampNow).toHaveBeenCalled();
   });
 
-  test('Timestamp.now can be mocked', () => {
-    mockTimestampNow.mockReturnValueOnce('Success!');
+  test("Timestamp.now can be mocked", () => {
+    mockTimestampNow.mockReturnValueOnce("Success!");
     const timestamp = FakeFirestore.Timestamp.now();
-    expect(timestamp).toBe('Success!');
+    expect(timestamp).toBe("Success!");
   });
 
-  test('it handles negative seconds', () => {
+  test("it handles negative seconds", () => {
     // Since this is a mock (and I'm bad with time maths) we don't expect nanosecond accuracy
     const timestamp = FakeFirestore.Timestamp.fromMillis(-54001);
     const rts = ref.fromMillis(-54001);

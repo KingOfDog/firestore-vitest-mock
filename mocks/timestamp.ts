@@ -1,16 +1,16 @@
-const mockTimestampToDate = jest.fn();
-const mockTimestampToMillis = jest.fn();
-const mockTimestampFromDate = jest.fn();
-const mockTimestampFromMillis = jest.fn();
-const mockTimestampNow = jest.fn();
+import { vi } from "vitest";
+import { FakeFirestoreDatabase } from './firestore.model';
 
-class Timestamp {
-  constructor(seconds, nanoseconds) {
-    this.seconds = seconds;
-    this.nanoseconds = nanoseconds;
-  }
+const mockTimestampToDate = vi.fn<unknown[], Date>();
+const mockTimestampToMillis = vi.fn<unknown[], number>();
+const mockTimestampFromDate = vi.fn<unknown[], Timestamp>();
+const mockTimestampFromMillis = vi.fn<unknown[], Timestamp>();
+const mockTimestampNow = vi.fn<unknown[], Timestamp>();
 
-  isEqual(other) {
+export class Timestamp {
+  constructor(private seconds: number, private nanoseconds: number) { }
+
+  isEqual(other: Timestamp): boolean {
     return (
       other instanceof Timestamp &&
       other.seconds === this.seconds &&
@@ -18,38 +18,43 @@ class Timestamp {
     );
   }
 
-  toDate() {
+  toDate(): Date {
     return mockTimestampToDate(...arguments) || new Date(this._toMillis());
   }
 
-  toMillis() {
+  toMillis(): number {
     return mockTimestampToMillis(...arguments) || this._toMillis();
   }
 
-  valueOf() {
+  valueOf(): string {
     return JSON.stringify(this.toMillis());
   }
 
-  static fromDate(date) {
-    return mockTimestampFromDate(...arguments) || Timestamp._fromMillis(date.getTime());
+  static fromDate(date: Date): Timestamp {
+    return (
+      mockTimestampFromDate(...arguments) ||
+      Timestamp._fromMillis(date.getTime())
+    );
   }
 
-  static fromMillis(millis) {
-    return mockTimestampFromMillis(...arguments) || Timestamp._fromMillis(millis);
+  static fromMillis(millis: number): Timestamp {
+    return (
+      mockTimestampFromMillis(...arguments) || Timestamp._fromMillis(millis)
+    );
   }
 
-  static _fromMillis(millis) {
+  static _fromMillis(millis: number): Timestamp {
     const seconds = Math.floor(millis / 1000);
     const nanoseconds = 1000000 * (millis - seconds * 1000);
     return new Timestamp(seconds, nanoseconds);
   }
 
   // Dates only return whole-number millis
-  _toMillis() {
+  _toMillis(): number {
     return this.seconds * 1000 + Math.round(this.nanoseconds / 1000000);
   }
 
-  static now() {
+  static now(): Timestamp {
     const now = new Date();
     return mockTimestampNow(...arguments) || Timestamp.fromDate(now);
   }
@@ -57,24 +62,24 @@ class Timestamp {
 
 //
 // Search data for possible timestamps and convert to class.
-function convertTimestamps(data, path = []) {
+export function convertTimestamps(data: FakeFirestoreDatabase, path = []): FakeFirestoreDatabase | Timestamp {
   if (!data) {
     return data;
   }
   // we need to avoid self-referencing DB's (can happen on db.get)
   // Check we have not looped.  If we have, backout
   if (path.includes(data)) {
-    return;
+    return data;
   }
 
   // Check if this object is or contains a timestamp
-  if (typeof data === 'object') {
+  if (typeof data === "object") {
     const keys = Object.keys(data);
     // if it is a timestamp, convert to the appropriate class
     if (
       keys.length === 2 &&
-      keys.find(k => k === 'seconds') &&
-      keys.find(k => k === 'nanoseconds')
+      keys.find(k => k === "seconds") &&
+      keys.find(k => k === "nanoseconds")
     ) {
       return new Timestamp(data.seconds, data.nanoseconds);
     } else {
@@ -92,14 +97,10 @@ function convertTimestamps(data, path = []) {
   return data;
 }
 
-module.exports = {
-  Timestamp,
-  convertTimestamps,
-  mocks: {
-    mockTimestampToDate,
-    mockTimestampToMillis,
-    mockTimestampFromDate,
-    mockTimestampFromMillis,
-    mockTimestampNow,
-  },
+export const mocks = {
+  mockTimestampToDate,
+  mockTimestampToMillis,
+  mockTimestampFromDate,
+  mockTimestampFromMillis,
+  mockTimestampNow
 };

@@ -72,17 +72,17 @@ The default method to use is `mockFirebase`, which returns a jest mock, overwrit
 Example usage:
 
 ```js
-const { mockFirebase } = require('firestore-jest-mock');
+const { mockFirebase } = require("firestore-jest-mock");
 
 // Create a fake Firestore with a `users` and `posts` collection
 mockFirebase({
   database: {
     users: [
-      { id: 'abc123', name: 'Homer Simpson' },
-      { id: 'abc456', name: 'Lisa Simpson' },
+      { id: "abc123", name: "Homer Simpson" },
+      { id: "abc456", name: "Lisa Simpson" }
     ],
-    posts: [{ id: '123abc', title: 'Really cool title' }],
-  },
+    posts: [{ id: "123abc", title: "Really cool title" }]
+  }
 });
 ```
 
@@ -97,18 +97,18 @@ This will populate a fake database with a `users` and `posts` collection. This d
 Now you can write queries or requests for data just as you would with Firestore:
 
 ```js
-const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
 
-test('testing stuff', () => {
-  const firebase = require('firebase'); // or import firebase from 'firebase';
+test("testing stuff", () => {
+  const firebase = require("firebase"); // or import firebase from 'firebase';
   const db = firebase.firestore();
 
   return db
-    .collection('users')
+    .collection("users")
     .get()
     .then(userDocs => {
       // Assert that a collection ID was referenced
-      expect(mockCollection).toHaveBeenCalledWith('users');
+      expect(mockCollection).toHaveBeenCalledWith("users");
 
       // Write other assertions here
     });
@@ -128,30 +128,30 @@ The other mock functions may be imported similarly.
 If you use `@google-cloud/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
 
 ```js
-const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
+const { mockGoogleCloudFirestore } = require("firestore-jest-mock");
 
 mockGoogleCloudFirestore({
   database: {
     users: [
-      { id: 'abc123', name: 'Homer Simpson' },
-      { id: 'abc456', name: 'Lisa Simpson' },
+      { id: "abc123", name: "Homer Simpson" },
+      { id: "abc456", name: "Lisa Simpson" }
     ],
-    posts: [{ id: '123abc', title: 'Really cool title' }],
-  },
+    posts: [{ id: "123abc", title: "Really cool title" }]
+  }
 });
 
-const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
 
-test('testing stuff', () => {
-  const { Firestore } = require('@google-cloud/firestore');
+test("testing stuff", () => {
+  const { Firestore } = require("@google-cloud/firestore");
   const firestore = new Firestore();
 
   return firestore
-    .collection('users')
+    .collection("users")
     .get()
     .then(userDocs => {
-      expect(mockCollection).toHaveBeenCalledWith('users');
-      expect(userDocs[0].name).toEqual('Homer Simpson');
+      expect(mockCollection).toHaveBeenCalledWith("users");
+      expect(userDocs[0].name).toEqual("Homer Simpson");
     });
 });
 ```
@@ -164,30 +164,30 @@ The `Auth` module is not available for `@google-cloud/firestore` compatibility._
 If you use `@react-native-firebase/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
 
 ```js
-const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
+const { mockGoogleCloudFirestore } = require("firestore-jest-mock");
 
 mockGoogleCloudFirestore({
   database: {
     users: [
-      { id: 'abc123', name: 'Homer Simpson' },
-      { id: 'abc456', name: 'Lisa Simpson' },
+      { id: "abc123", name: "Homer Simpson" },
+      { id: "abc456", name: "Lisa Simpson" }
     ],
-    posts: [{ id: '123abc', title: 'Really cool title' }],
-  },
+    posts: [{ id: "123abc", title: "Really cool title" }]
+  }
 });
 
-const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
 
-test('testing stuff', () => {
-  const { Firestore } = require('@react-native-firebase/firestore');
+test("testing stuff", () => {
+  const { Firestore } = require("@react-native-firebase/firestore");
   const firestore = new Firestore();
 
   return firestore
-    .collection('users')
+    .collection("users")
     .get()
     .then(userDocs => {
-      expect(mockCollection).toHaveBeenCalledWith('users');
-      expect(userDocs[0].name).toEqual('Homer Simpson');
+      expect(mockCollection).toHaveBeenCalledWith("users");
+      expect(userDocs[0].name).toEqual("Homer Simpson");
     });
 });
 ```
@@ -200,30 +200,30 @@ The `Auth` module is not available for `@react-native-firebase/firestore` compat
 A common Firestore use case is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these with firestore-jest-mock like so:
 
 ```js
-const { mockFirebase } = require('firestore-jest-mock');
+const { mockFirebase } = require("firestore-jest-mock");
 // Using our fake Firestore from above:
 mockFirebase({
   database: {
     users: [
       {
-        id: 'abc123',
-        name: 'Homer Simpson',
+        id: "abc123",
+        name: "Homer Simpson"
       },
       {
-        id: 'abc456',
-        name: 'Lisa Simpson',
+        id: "abc456",
+        name: "Lisa Simpson",
         _collections: {
           notes: [
             {
-              id: 'note123',
-              text: 'This is a document in a subcollection!',
-            },
-          ],
-        },
-      },
+              id: "note123",
+              text: "This is a document in a subcollection!"
+            }
+          ]
+        }
+      }
     ],
-    posts: [{ id: '123abc', title: 'Really cool title' }],
-  },
+    posts: [{ id: "123abc", title: "Really cool title" }]
+  }
 });
 ```
 
@@ -232,22 +232,25 @@ Similar to how the `id` key defines a document object to firestore-jest-mock, th
 This lets you model and validate more complex document access:
 
 ```js
-const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+const {
+  mockCollection,
+  mockDoc
+} = require("firestore-jest-mock/mocks/firestore");
 
-test('testing stuff', () => {
-  const firebase = require('firebase');
+test("testing stuff", () => {
+  const firebase = require("firebase");
   const db = firebase.firestore();
 
   return db
-    .collection('users')
-    .doc('abc456')
-    .collection('notes')
+    .collection("users")
+    .doc("abc456")
+    .collection("notes")
     .get()
     .then(noteDocs => {
       // Assert that a collection or document ID was referenced
-      expect(mockCollection).toHaveBeenNthCalledWith(1, 'users');
-      expect(mockDoc).toHaveBeenCalledWith('abc456');
-      expect(mockCollection).toHaveBeenNthCalledWith(2, 'notes');
+      expect(mockCollection).toHaveBeenNthCalledWith(1, "users");
+      expect(mockDoc).toHaveBeenCalledWith("abc456");
+      expect(mockCollection).toHaveBeenNthCalledWith(2, "notes");
 
       // Write other assertions here
     });
@@ -262,10 +265,10 @@ Take this example:
 
 ```js
 function maybeGetUsersInState(state) {
-  const query = firestore.collection('users');
+  const query = firestore.collection("users");
 
   if (state) {
-    query = query.where('state', '==', state);
+    query = query.where("state", "==", state);
   }
 
   return query.get();
@@ -275,41 +278,44 @@ function maybeGetUsersInState(state) {
 We have a conditional query here. If you pass `state` to this function, we will query against it; otherwise, we just get all of the users. So, you may want to write a test that ensures you are querying correctly:
 
 ```js
-const { mockFirebase } = require('firestore-jest-mock');
+const { mockFirebase } = require("firestore-jest-mock");
 
 // Import the mock versions of the functions you expect to be called
-const { mockCollection, mockWhere } = require('firestore-jest-mock/mocks/firestore');
-describe('we can query', () => {
+const {
+  mockCollection,
+  mockWhere
+} = require("firestore-jest-mock/mocks/firestore");
+describe("we can query", () => {
   mockFirebase({
     database: {
       users: [
         {
-          id: 'abc123',
-          name: 'Homer Simpson',
-          state: 'connecticut',
+          id: "abc123",
+          name: "Homer Simpson",
+          state: "connecticut"
         },
         {
-          id: 'abc456',
-          name: 'Lisa Simpson',
-          state: 'alabama',
-        },
-      ],
-    },
+          id: "abc456",
+          name: "Lisa Simpson",
+          state: "alabama"
+        }
+      ]
+    }
   });
 
-  test('query with state', async () => {
-    await maybeGetUsersInState('alabama');
+  test("query with state", async () => {
+    await maybeGetUsersInState("alabama");
 
     // Assert that we call the correct Firestore methods
-    expect(mockCollection).toHaveBeenCalledWith('users');
-    expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
+    expect(mockCollection).toHaveBeenCalledWith("users");
+    expect(mockWhere).toHaveBeenCalledWith("state", "==", "alabama");
   });
 
-  test('no state', async () => {
+  test("no state", async () => {
     await maybeGetUsersInState();
 
     // Assert that we call the correct Firestore methods
-    expect(mockCollection).toHaveBeenCalledWith('users');
+    expect(mockCollection).toHaveBeenCalledWith("users");
     expect(mockWhere).not.toHaveBeenCalled();
   });
 });
@@ -332,7 +338,7 @@ Luckily, jest offers a few methods to reset or clear your mocks.
 - [clearAllMocks()](https://jestjs.io/docs/en/jest-object#jestclearallmocks) clears all the calls for all of your mocks. It's good to run this in a `beforeEach` to reset between each test
 
 ```js
-jest.clearAllMocks();
+vi.clearAllMocks();
 ```
 
 - [mockClear()](https://jestjs.io/docs/en/mock-function-api.html#mockfnmockclear) this resets one specific mock function
@@ -357,7 +363,7 @@ However, you can pass an `options` object to the mock to overwrite some default 
 const options = {
   includeIdsInData: true,
   mutable: true,
-  simulateQueryFilters: true,
+  simulateQueryFilters: true
 };
 
 mockFirebase(database, options);
