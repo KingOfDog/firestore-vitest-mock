@@ -1,4 +1,4 @@
-abstract class Path<T> {
+export abstract class Path<T> {
   constructor(public segments: string[]) {
   }
 

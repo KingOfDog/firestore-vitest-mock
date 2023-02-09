@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, vi, test, beforeAll } from "vitest";
 
 import {
   mockFirebase,
-  FakeFirestore,
 } from "..";
 import {
   mockRunTransaction,

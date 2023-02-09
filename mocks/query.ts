@@ -1,8 +1,9 @@
 import { vi } from "vitest";
-import { FakeFirestore } from './firestore.model';
+import { FakeFirestore } from './firestore';
+import { DocumentHash } from './helpers/buildDocFromHash.model';
 
 import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
-import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
+import { Comparator, MockedQuerySnapshot, QueryFilter } from './helpers/buildQuerySnapShot.model';
 
 export const mockGet = vi.fn();
 export const mockSelect = vi.fn();
@@ -16,10 +17,10 @@ export const mockQueryOnSnapshot = vi.fn();
 export const mockWithConverter = vi.fn();
 
 export class Query {
-  private filters = [];
-  private selectFields?;
+  private filters: QueryFilter[] = [];
+  private selectFields?: string[];
 
-  constructor(public collectionName: string, private firestore: typeof FakeFirestore, private isGroupQuery = false) {
+  constructor(public collectionName: string, public firestore: FakeFirestore, public isGroupQuery = false) {
   }
 
   get(): Promise<MockedQuerySnapshot> {
@@ -31,7 +32,7 @@ export class Query {
     // Simulate collectionGroup query
 
     // Get Firestore collections whose name match `this.collectionName`; return their documents
-    const requestedRecords = [];
+    const requestedRecords: DocumentHash[] = [];
 
     const queue = [
       {
@@ -42,7 +43,7 @@ export class Query {
 
     while (queue.length > 0) {
       // Get a collection
-      const { lastParent, collections } = queue.shift();
+      const { lastParent, collections } = queue.shift()!;
 
       Object.entries(collections).forEach(([collectionPath, docs]) => {
         const prefix = lastParent ? `${lastParent}/` : "";
@@ -52,7 +53,7 @@ export class Query {
 
         // If this is a matching collection, grep its documents
         if (lastPathComponent === this.collectionName) {
-          const docHashes = docs.map(doc => {
+          const docHashes = docs!.map(doc => {
             // Fetch the document from the mock db
             const path = `${newLastParent}/${doc.id}`;
             return {
@@ -64,7 +65,7 @@ export class Query {
         }
 
         // Enqueue adjacent collections for next run
-        docs.forEach(doc => {
+        docs!.forEach(doc => {
           if (doc._collections) {
             queue.push({
               lastParent: `${prefix}${collectionPath}/${doc.id}`,
@@ -84,12 +85,12 @@ export class Query {
     );
   }
 
-  select(...fieldPaths): Query {
+  select(...fieldPaths: string[]): Query {
     this.selectFields = fieldPaths;
     return mockSelect(...fieldPaths) || this;
   }
 
-  where(key, comp, value): Query {
+  where(key: string, comp: Comparator, value: string): Query {
     const result = mockWhere(...arguments);
     if (result) {
       return result;

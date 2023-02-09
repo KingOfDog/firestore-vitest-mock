@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, vi, test, beforeAll } from "vitest";
+import { describe, expect, test, beforeAll } from "vitest";
 
 import {
   mockCollection,
@@ -6,7 +6,6 @@ import {
   mockGet,
   mockWhere,
   mockOffset,
-  FakeFirestore,
   Timestamp,
   Query,
   DocumentReference
@@ -14,6 +13,7 @@ import {
 import {
   mockFirebase
 } from "..";
+import { FirebaseUser } from '../mocks/auth';
 
 describe("Queries", () => {
   mockFirebase(
@@ -131,7 +131,7 @@ describe("Queries", () => {
           }
         ]
       },
-      currentUser: { uid: "homer-user" }
+      currentUser: { uid: "homer-user" } as FirebaseUser
     },
     { simulateQueryFilters: true }
   );

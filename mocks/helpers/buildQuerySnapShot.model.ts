@@ -1,4 +1,4 @@
-import type { MockedDocument, DocumentHash } from './buildDocFromHash';
+import { MockedDocument } from './buildDocFromHash.model';
 
 export type Comparator = '<' | '<=' | '==' | '!=' | '>=' | '>' | 'array-contains' | 'in' | 'not-in' | 'array-contains-any';
 
@@ -15,15 +15,3 @@ export interface MockedQuerySnapshot<Doc = MockedDocument> {
   forEach(callbackfn: (value: Doc, index: number, array: Array<Doc>) => void): void;
   docChanges(): Array<never>;
 }
-
-/**
- * Builds a query result from the given array of record objects.
- *
- * @param requestedRecords
- * @param filters
- */
-export default function buildQuerySnapShot(
-  requestedRecords: Array<DocumentHash>,
-  filters?: Array<QueryFilter>,
-  selectFields?: string[],
-): MockedQuerySnapshot;

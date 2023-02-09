@@ -1,7 +1,6 @@
-import { beforeEach, describe, expect, vi, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import {
-  FakeFirestore,
   mockTimestampToDate,
   mockTimestampToMillis,
   mockTimestampNow,

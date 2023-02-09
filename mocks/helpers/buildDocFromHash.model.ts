@@ -1,26 +1,27 @@
-import type { FakeFirestore, FakeFirestoreDatabase } from '../firestore.model';
+import { Timestamp } from 'mocks/timestamp';
+import type { DocumentReference, FakeFirestoreDatabase } from '../firestore.model';
 
 export type DocumentData = { [field: string]: unknown };
 
 export interface DocumentHash extends DocumentData {
   id?: string;
   _collections: FakeFirestoreDatabase;
-  _createTime?: typeof Timestamp;
-  _readTime?: typeof Timestamp;
-  _ref: typeof DocumentReference;
-  _updateTime?: typeof Timestamp;
+  _createTime?: Timestamp;
+  _readTime?: Timestamp;
+  _ref: DocumentReference;
+  _updateTime?: Timestamp;
 }
 
 export interface MockedDocument<T = DocumentData> {
-  createTime: typeof Timestamp;
+  createTime: Timestamp;
   exists: boolean;
   id: string;
-  readTime: typeof Timestamp;
-  ref: typeof DocumentReference;
+  readTime: Timestamp;
+  ref: DocumentReference;
   metadata: {
     hasPendingWrites: 'Server';
   };
-  updateTime: typeof Timestamp;
+  updateTime: Timestamp;
   data(): T | undefined;
   get(fieldPath: string): unknown;
 }

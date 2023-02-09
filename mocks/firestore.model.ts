@@ -1,12 +1,8 @@
-import type { Mock } from 'vitest';
-import type { FieldValue } from './fieldValue';
+import { FakeFirestore } from './firestore';
+import { DocumentData, MockedDocument } from './helpers/buildDocFromHash.model';
+import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
 import type { Query } from './query';
-import type { Timestamp } from './timestamp';
-import type { Transaction } from './transaction';
-import type { FieldPath } from './path';
 
-import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
-import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
 
 export interface DatabaseDocument extends DocumentData {
   id: string;
@@ -30,32 +26,32 @@ export interface FirestoreBatch {
 
 export type FakeFirestoreDatabase = DatabaseCollections;
 
-export class FakeFirestore {
-  static FieldValue: typeof FieldValue;
-  static Timestamp: typeof Timestamp
-  static Query: typeof Query;
-  static Transaction: typeof Transaction;
-  static FieldPath: typeof FieldPath;
+// export class FakeFirestore {
+//   static FieldValue: typeof FieldValue;
+//   static Timestamp: typeof Timestamp
+//   static Query: typeof Query;
+//   static Transaction: typeof Transaction;
+//   static FieldPath: typeof FieldPath;
 
-  static DocumentReference: typeof DocumentReference;
-  static CollectionReference: typeof CollectionReference;
+//   static DocumentReference: typeof DocumentReference;
+//   static CollectionReference: typeof CollectionReference;
 
-  database: FakeFirestoreDatabase;
-  options: Record<string, never>;
-  query: Query;
-  collectionName: string;
+//   database: FakeFirestoreDatabase;
+//   options: Record<string, never>;
+//   query: Query;
+//   collectionName: string;
 
-  constructor(stubbedDatabase?: DatabaseCollections, options?: Record<string, never>);
+//   constructor(stubbedDatabase?: DatabaseCollections, options?: Record<string, never>);
 
-  getAll(): Array<MockedQuerySnapshot>;
-  batch(): FirestoreBatch;
-  settings(): void;
-  useEmulator(): void;
-  collection(collectionName: string): CollectionReference;
-  collectionGroup(collectionName: string): Query;
-  doc(path: string): DocumentReference;
-  runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T>;
-}
+//   getAll(): Array<MockedQuerySnapshot>;
+//   batch(): FirestoreBatch;
+//   settings(): void;
+//   useEmulator(): void;
+//   collection(collectionName: string): CollectionReference;
+//   collectionGroup(collectionName: string): Query;
+//   doc(path: string): DocumentReference;
+//   runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T>;
+// }
 
 export declare class DocumentReference {
   id: string;

@@ -1,6 +1,14 @@
 import buildDocFromHash from './buildDocFromHash';
+import { DocumentHash } from './buildDocFromHash.model';
+import { MockedQuerySnapshot, QueryFilter } from './buildQuerySnapShot.model';
 
-export default function buildQuerySnapShot(requestedRecords, filters, selectFields) {
+/**
+ * Builds a query result from the given array of record objects.
+ *
+ * @param requestedRecords
+ * @param filters
+ */
+export default function buildQuerySnapShot(requestedRecords: Array<DocumentHash>, filters?: Array<QueryFilter>, selectFields?: string[]): MockedQuerySnapshot {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const results = _filteredDocuments(definiteRecords, filters);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
@@ -37,7 +45,7 @@ export default function buildQuerySnapShot(requestedRecords, filters, selectFiel
  *
  * @returns {Array<import('./buildDocFromHash').DocumentHash>} The filtered documents.
  */
-function _filteredDocuments(records, filters) {
+function _filteredDocuments(records: DocumentHash[], filters?: QueryFilter[]): DocumentHash[] {
   if (!filters || !Array.isArray(filters) || filters.length === 0) {
     return records;
   }
@@ -94,19 +102,19 @@ function _filteredDocuments(records, filters) {
   return records;
 }
 
-function _recordsWithKey(records, key) {
+function _recordsWithKey(records: DocumentHash[], key: string): DocumentHash[] {
   return records.filter(record => record && record[key] !== undefined);
 }
 
-function _recordsWithNonNullKey(records, key) {
+function _recordsWithNonNullKey(records: DocumentHash[], key: string): DocumentHash[] {
   return records.filter(record => record && record[key] !== undefined && record[key] !== null);
 }
 
-function _shouldCompareNumerically(a, b) {
+function _shouldCompareNumerically(a: unknown, b: unknown): boolean {
   return typeof a === 'number' && typeof b === 'number';
 }
 
-function _shouldCompareTimestamp(a, b) {
+function _shouldCompareTimestamp(a: unknown, b: unknown): boolean {
   //We check whether toMillis method exists to support both Timestamp mock and Firestore Timestamp object
   //B is expected to be Date, not Timestamp, just like Firestore does
   return (
@@ -114,13 +122,7 @@ function _shouldCompareTimestamp(a, b) {
   );
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsLessThanValue(records, key, value) {
+function _recordsLessThanValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] < value;
@@ -132,13 +134,7 @@ function _recordsLessThanValue(records, key, value) {
   });
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsLessThanOrEqualToValue(records, key, value) {
+function _recordsLessThanOrEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] <= value;
@@ -150,13 +146,7 @@ function _recordsLessThanOrEqualToValue(records, key, value) {
   });
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsEqualToValue(records, key, value) {
+function _recordsEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithKey(records, key).filter(record => {
     if (_shouldCompareTimestamp(record[key], value)) {
       //NOTE: for equality, we must compare numbers!
@@ -166,13 +156,7 @@ function _recordsEqualToValue(records, key, value) {
   });
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsNotEqualToValue(records, key, value) {
+function _recordsNotEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithKey(records, key).filter(record => {
     if (_shouldCompareTimestamp(record[key], value)) {
       //NOTE: for equality, we must compare numbers!
@@ -182,13 +166,7 @@ function _recordsNotEqualToValue(records, key, value) {
   });
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsGreaterThanOrEqualToValue(records, key, value) {
+function _recordsGreaterThanOrEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] >= value;
@@ -200,13 +178,7 @@ function _recordsGreaterThanOrEqualToValue(records, key, value) {
   });
 }
 
-/**
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
- */
-function _recordsGreaterThanValue(records, key, value) {
+function _recordsGreaterThanValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] > value;
@@ -220,13 +192,8 @@ function _recordsGreaterThanValue(records, key, value) {
 
 /**
  * @see https://firebase.google.com/docs/firestore/query-data/queries#array_membership
- *
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
  */
-function _recordsArrayContainsValue(records, key, value) {
+function _recordsArrayContainsValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return records.filter(
     record => record && record[key] && Array.isArray(record[key]) && record[key].includes(value),
   );
@@ -234,13 +201,8 @@ function _recordsArrayContainsValue(records, key, value) {
 
 /**
  * @see https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
- *
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
  */
-function _recordsWithValueInList(records, key, value) {
+function _recordsWithValueInList(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return records.filter(record => {
     if (!record || record[key] === undefined) {
@@ -252,13 +214,8 @@ function _recordsWithValueInList(records, key, value) {
 
 /**
  * @see https://firebase.google.com/docs/firestore/query-data/queries#not-in
- *
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
  */
-function _recordsWithValueNotInList(records, key, value) {
+function _recordsWithValueNotInList(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return _recordsWithKey(records, key).filter(
     record => value && Array.isArray(value) && !value.includes(record[key]),
@@ -267,13 +224,8 @@ function _recordsWithValueNotInList(records, key, value) {
 
 /**
  * @see https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
- *
- * @param {Array<DocumentHash>} records
- * @param {string} key
- * @param {unknown} value
- * @returns {Array<DocumentHash>}
  */
-function _recordsWithOneOfValues(records, key, value) {
+function _recordsWithOneOfValues(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return records.filter(
     record =>

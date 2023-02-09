@@ -1,6 +1,7 @@
 import type { Mock } from 'vitest';
 import type { FirebaseUser, FakeAuth } from './auth';
 import type { FakeFirestore } from './firestore';
+import DefaultOptions from './helpers/defaultMockOptions';
 
 export interface DatabaseDocument {
   id: string;
@@ -19,8 +20,7 @@ export interface StubOverrides {
   currentUser?: FirebaseUser;
 }
 
-type DefaultOptions = typeof import('./helpers/defaultMockOptions');
-export interface StubOptions extends Partial<DefaultOptions> {}
+export interface StubOptions extends Partial<typeof DefaultOptions> { }
 
 export interface FirebaseMock {
   initializeApp: Mock;
@@ -30,8 +30,3 @@ export interface FirebaseMock {
   auth(): FakeAuth;
   firestore(): FakeFirestore;
 }
-
-export const firebaseStub: (overrides?: StubOverrides, options?: StubOptions) => FirebaseMock;
-export const mockFirebase: (overrides?: StubOverrides, options?: StubOptions) => void;
-export const mockInitializeApp: Mock;
-export const mockCert: Mock;

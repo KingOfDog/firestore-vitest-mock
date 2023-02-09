@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, describe, expect, vi, test, beforeAll, afterAll } from "vitest";
+import { beforeEach, afterEach, describe, expect, vi, test } from "vitest";
 import { mockFirebase, mockInitializeApp } from '../mocks/firebase';
 import { mockSettings, mockUseEmulator, mockAdd, mockCollectionGroup, mockSet, mockBatch, mockBatchCommit, mockBatchDelete, mockBatchSet, mockBatchUpdate, mockUpdate, mockOnSnapShot, CollectionReference, DocumentReference, mockCollection, mockDoc } from '../mocks/firestore';
 import { mockSelect, mockGet, mockWhere, mockQueryOnSnapshot, mockWithConverter } from '../mocks/query';
@@ -68,7 +68,7 @@ describe(
       });
     });
 
-    afterEach(() => mockTimestampNow.mockClear());
+    afterEach(() => { mockTimestampNow.mockClear() });
 
     test("We can start an application", async () => {
       const db = firebase.firestore();

@@ -11,6 +11,8 @@ import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
 import { Query } from './query';
 import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
 import { Transaction } from './transaction';
+import { FakeFirestoreDatabase, FirestoreBatch } from './firestore.model';
+import { DocumentData, MockedDocument } from './helpers/buildDocFromHash.model';
 
 export * from './query';
 export * from './transaction';
@@ -193,7 +195,7 @@ export class FakeFirestore {
     return { doc, coll };
   }
 
-  runTransaction(updateFunction) {
+  runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T> {
     mockRunTransaction(...arguments);
     return updateFunction(new Transaction());
   }
@@ -252,9 +254,10 @@ export class FakeFirestore {
  */
 
 export class DocumentReference {
-  constructor(id, parent) {
-    this.id = id;
-    this.parent = parent;
+  public firestore: FakeFirestore;
+  public path: string;
+
+  constructor(public id: string, public parent: CollectionReference) {
     this.firestore = parent.firestore;
     this.path = parent.path
       .split("/")
@@ -262,7 +265,7 @@ export class DocumentReference {
       .join("/");
   }
 
-  collection(collectionName) {
+  collection(collectionName: string) {
     mockCollection(...arguments);
     return new CollectionReference(collectionName, this);
   }
@@ -285,9 +288,8 @@ export class DocumentReference {
     return Promise.resolve(collectionRefs);
   }
 
-  delete() {
+  async delete(): Promise<void> {
     mockDelete(...arguments);
-    return Promise.resolve();
   }
 
   onSnapshot() {
@@ -318,13 +320,13 @@ export class DocumentReference {
     return () => { };
   }
 
-  get() {
+  get(): Promise<MockedDocument> {
     query.mockGet(...arguments);
     const data = this._get();
     return Promise.resolve(data);
   }
 
-  update(object) {
+  update(object: DocumentData): Promise<MockedDocument> {
     mockUpdate(...arguments);
     if (this._get().exists) {
       this.firestore._updateData(this.path, object, true);
@@ -458,11 +460,13 @@ export class DocumentReference {
  */
 
 export class CollectionReference extends Query {
-  constructor(id, parent, firestore) {
-    super(id, firestore || parent.firestore);
+  public path: string;
+  public firestore: FakeFirestore;
 
-    this.id = id;
-    this.parent = parent;
+  constructor(public id: string, public parent: DocumentReference, firestore: FakeFirestore) {
+    super(id, firestore ?? parent.firestore);
+    this.firestore = firestore ?? parent.firestore;
+
     if (parent) {
       this.path = parent.path.concat(`/${id}`);
     } else {

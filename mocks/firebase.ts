@@ -1,16 +1,17 @@
 import { vi } from 'vitest';
+import { FirebaseMock, StubOptions, StubOverrides } from './firebase.model';
 
 import defaultOptions from './helpers/defaultMockOptions';
 
 export const mockInitializeApp = vi.fn();
 export const mockCert = vi.fn();
 
-export const firebaseStub = async (overrides, options = defaultOptions) => {
+export const firebaseStub = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<FirebaseMock> => {
   const { FakeFirestore, FakeAuth, Query, CollectionReference, DocumentReference, FieldValue, Timestamp, Transaction, FieldPath } = await import('firestore-vitest-mock');
 
   // Prepare namespaced classes
   function firestoreConstructor() {
-    return new FakeFirestore(overrides.database, options);
+    return new FakeFirestore(overrides?.database, options);
   }
 
   firestoreConstructor.Query = Query;
@@ -33,19 +34,19 @@ export const firebaseStub = async (overrides, options = defaultOptions) => {
     },
 
     auth() {
-      return new FakeAuth(overrides.currentUser);
+      return new FakeAuth(overrides?.currentUser);
     },
 
     firestore: firestoreConstructor,
   };
 };
 
-export const mockFirebase = (overrides = {}, options = defaultOptions) => {
+export const mockFirebase = (overrides?: StubOverrides, options: StubOptions = defaultOptions) => {
   mockModuleIfFound('firebase', overrides, options);
   mockModuleIfFound('firebase-admin', overrides, options);
 };
 
-async function mockModuleIfFound(moduleName, overrides, options) {
+async function mockModuleIfFound(moduleName: string, overrides?: StubOverrides, options?: StubOptions) {
   try {
     // await import.meta.resolve(moduleName);
     vi.doMock(moduleName, () => firebaseStub(overrides, options));
