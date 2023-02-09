@@ -2,7 +2,7 @@
 
 > Vitest Mock for testing Google Cloud Firestore
 
-Fork from [firestore-jest-mock](https://github.com/Upstatement/firestore-jest-mock)
+Fork from [firestore-vitest-mock](https://github.com/Upstatement/firestore-vitest-mock)
 
 A simple way to mock calls to Cloud Firestore, allowing you to assert that you are requesting data correctly.
 
@@ -53,20 +53,14 @@ This library provides an easy to use mocked version of firestore.
 With [npm](https://www.npmjs.com):
 
 ```shell
-npm install --save-dev firestore-jest-mock
-```
-
-With [yarn](https://yarnpkg.com/):
-
-```shell
-yarn add --dev firestore-jest-mock
+npm install --save-dev firestore-vitest-mock
 ```
 
 ## Usage
 
 ### `mockFirebase`
 
-The default method to use is `mockFirebase`, which returns a jest mock, overwriting `firebase` and `firebase-admin`. It accepts an object with two pieces:
+The default method to use is `mockFirebase`, which returns a vitest mock, overwriting `firebase` and `firebase-admin`. It accepts an object with two pieces:
 
 - `database` -- A mock of your collections
 - `currentUser` -- (optional) overwrites the currently logged in user
@@ -74,7 +68,7 @@ The default method to use is `mockFirebase`, which returns a jest mock, overwrit
 Example usage:
 
 ```js
-const { mockFirebase } = require("firestore-jest-mock");
+const { mockFirebase } = require("firestore-vitest-mock");
 
 // Create a fake Firestore with a `users` and `posts` collection
 mockFirebase({
@@ -91,7 +85,7 @@ mockFirebase({
 If you are using TypeScript, you can import `mockFirebase` using ES module syntax:
 
 ```TypeScript
-import { mockFirebase } from 'firestore-jest-mock';
+import { mockFirebase } from 'firestore-vitest-mock';
 ```
 
 This will populate a fake database with a `users` and `posts` collection. This database is read-only by default, meaning that any Firestore write calls will not actually persist across invocations.
@@ -99,7 +93,7 @@ This will populate a fake database with a `users` and `posts` collection. This d
 Now you can write queries or requests for data just as you would with Firestore:
 
 ```js
-const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
+const { mockCollection } = require("firestore-vitest-mock/mocks/firestore");
 
 test("testing stuff", () => {
   const firebase = require("firebase"); // or import firebase from 'firebase';
@@ -120,7 +114,7 @@ test("testing stuff", () => {
 In TypeScript, you would import `mockCollection` using ES module syntax:
 
 ```TypeScript
-import { mockCollection } from 'firestore-jest-mock/mocks/firestore';
+import { mockCollection } from 'firestore-vitest-mock/mocks/firestore';
 ```
 
 The other mock functions may be imported similarly.
@@ -130,7 +124,7 @@ The other mock functions may be imported similarly.
 If you use `@google-cloud/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
 
 ```js
-const { mockGoogleCloudFirestore } = require("firestore-jest-mock");
+const { mockGoogleCloudFirestore } = require("firestore-vitest-mock");
 
 mockGoogleCloudFirestore({
   database: {
@@ -142,7 +136,7 @@ mockGoogleCloudFirestore({
   }
 });
 
-const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
+const { mockCollection } = require("firestore-vitest-mock/mocks/firestore");
 
 test("testing stuff", () => {
   const { Firestore } = require("@google-cloud/firestore");
@@ -166,7 +160,7 @@ The `Auth` module is not available for `@google-cloud/firestore` compatibility._
 If you use `@react-native-firebase/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
 
 ```js
-const { mockGoogleCloudFirestore } = require("firestore-jest-mock");
+const { mockGoogleCloudFirestore } = require("firestore-vitest-mock");
 
 mockGoogleCloudFirestore({
   database: {
@@ -178,7 +172,7 @@ mockGoogleCloudFirestore({
   }
 });
 
-const { mockCollection } = require("firestore-jest-mock/mocks/firestore");
+const { mockCollection } = require("firestore-vitest-mock/mocks/firestore");
 
 test("testing stuff", () => {
   const { Firestore } = require("@react-native-firebase/firestore");
@@ -199,10 +193,10 @@ The `Auth` module is not available for `@react-native-firebase/firestore` compat
 
 ### Subcollections
 
-A common Firestore use case is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these with firestore-jest-mock like so:
+A common Firestore use case is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these with firestore-vitest-mock like so:
 
 ```js
-const { mockFirebase } = require("firestore-jest-mock");
+const { mockFirebase } = require("firestore-vitest-mock");
 // Using our fake Firestore from above:
 mockFirebase({
   database: {
@@ -229,7 +223,7 @@ mockFirebase({
 });
 ```
 
-Similar to how the `id` key defines a document object to firestore-jest-mock, the `_collections` key defines a subcollection. You model each subcollection structure in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
+Similar to how the `id` key defines a document object to firestore-vitest-mock, the `_collections` key defines a subcollection. You model each subcollection structure in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
 
 This lets you model and validate more complex document access:
 
@@ -237,7 +231,7 @@ This lets you model and validate more complex document access:
 const {
   mockCollection,
   mockDoc
-} = require("firestore-jest-mock/mocks/firestore");
+} = require("firestore-vitest-mock/mocks/firestore");
 
 test("testing stuff", () => {
   const firebase = require("firebase");
@@ -280,13 +274,13 @@ function maybeGetUsersInState(state) {
 We have a conditional query here. If you pass `state` to this function, we will query against it; otherwise, we just get all of the users. So, you may want to write a test that ensures you are querying correctly:
 
 ```js
-const { mockFirebase } = require("firestore-jest-mock");
+const { mockFirebase } = require("firestore-vitest-mock");
 
 // Import the mock versions of the functions you expect to be called
 const {
   mockCollection,
   mockWhere
-} = require("firestore-jest-mock/mocks/firestore");
+} = require("firestore-vitest-mock/mocks/firestore");
 describe("we can query", () => {
   mockFirebase({
     database: {
@@ -331,19 +325,19 @@ That's what we want to answer.
 
 ### Don't forget to reset your mocks
 
-In jest, mocks will not reset between test instances unless you specify them to.
+In vitest, mocks will not reset between test instances unless you specify them to.
 This can be an issue if you have two tests that make an asseration against something like `mockCollection`.
 If you call it in one test and assert that it was called in another test, you may get a false positive.
 
-Luckily, jest offers a few methods to reset or clear your mocks.
+Luckily, vitest offers a few methods to reset or clear your mocks.
 
-- [clearAllMocks()](https://jestjs.io/docs/en/jest-object#jestclearallmocks) clears all the calls for all of your mocks. It's good to run this in a `beforeEach` to reset between each test
+- [clearAllMocks()](https://vitestjs.io/docs/en/vitest-object#vitestclearallmocks) clears all the calls for all of your mocks. It's good to run this in a `beforeEach` to reset between each test
 
 ```js
 vi.clearAllMocks();
 ```
 
-- [mockClear()](https://jestjs.io/docs/en/mock-function-api.html#mockfnmockclear) this resets one specific mock function
+- [mockClear()](https://vitestjs.io/docs/en/mock-function-api.html#mockfnmockclear) this resets one specific mock function
 
 ```js
 mockCollection.mockClear();

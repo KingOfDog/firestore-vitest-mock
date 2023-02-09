@@ -42,9 +42,9 @@ export const firebaseStub = async (overrides?: StubOverrides, options: StubOptio
   };
 };
 
-export const mockFirebase = (overrides?: StubOverrides, options: StubOptions = defaultOptions): void => {
-  mockModuleIfFound('firebase', overrides, options);
-  mockModuleIfFound('firebase-admin', overrides, options);
+export const mockFirebase = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<void> => {
+  await mockModuleIfFound('firebase', overrides, options);
+  await mockModuleIfFound('firebase-admin', overrides, options);
 };
 
 async function mockModuleIfFound(moduleName: string, overrides?: StubOverrides, options?: StubOptions) {
