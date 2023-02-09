@@ -1,4 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["mocks", "@types", ".eslintrc.js", "__tests__", "vite.config.ts"]
+  "include": [
+    "mocks",
+    "@types",
+    ".eslintrc.js",
+    "__tests__",
+    "vite.config.ts",
+    "./*.ts"
+  ]
 }

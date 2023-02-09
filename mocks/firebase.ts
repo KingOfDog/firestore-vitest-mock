@@ -22,7 +22,8 @@ export const firebaseStub = async (overrides?: StubOverrides, options: StubOptio
   firestoreConstructor.Transaction = Transaction;
   firestoreConstructor.FieldPath = FieldPath;
 
-  //Remove methods which do not exist in Firebase
+  // Remove methods which do not exist in Firebase
+  // @ts-expect-error The listCollections method is only used internally and should not be exposed to applications
   delete DocumentReference.prototype.listCollections;
 
   // The Firebase mock
@@ -41,7 +42,7 @@ export const firebaseStub = async (overrides?: StubOverrides, options: StubOptio
   };
 };
 
-export const mockFirebase = (overrides?: StubOverrides, options: StubOptions = defaultOptions) => {
+export const mockFirebase = (overrides?: StubOverrides, options: StubOptions = defaultOptions): void => {
   mockModuleIfFound('firebase', overrides, options);
   mockModuleIfFound('firebase-admin', overrides, options);
 };

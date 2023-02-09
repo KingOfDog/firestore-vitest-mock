@@ -43,7 +43,7 @@ describe("Reference Sentinels", () => {
     test("it returns a collection reference", () => {
       const charactersRef = db.collection("characters");
       expect(charactersRef).toBeInstanceOf(CollectionReference);
-      expect(charactersRef.parent).toBeNull();
+      expect(charactersRef.parent).toBeUndefined();
       expect(mockCollection).toHaveBeenCalledWith("characters");
 
       expect(db.collection("non-existent")).toBeInstanceOf(

@@ -43,7 +43,7 @@ describe("Transactions", () => {
   });
 
   test("it returns a Promise", () => {
-    const result = db.runTransaction(async () => { });
+    const result = db.runTransaction(async () => { return; });
 
     expect(result).toBeInstanceOf(Promise);
     expect(mockRunTransaction).toHaveBeenCalled();

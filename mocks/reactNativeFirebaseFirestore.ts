@@ -40,7 +40,7 @@ export const firestoreStub = async (overrides?: StubOverrides, options: StubOpti
   };
 };
 
-export const mockReactNativeFirestore = (overrides?: StubOverrides, options: StubOptions = defaultOptions) => {
+export const mockReactNativeFirestore = (overrides?: StubOverrides, options: StubOptions = defaultOptions): void => {
   mockModuleIfFound("@react-native-firebase/firestore", overrides, options);
 };
 

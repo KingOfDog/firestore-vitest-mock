@@ -1,28 +1,22 @@
 import { vi } from "vitest";
-import { FieldValue } from './fieldValue';
 import { StubOptions, StubOverrides } from './firebase.model';
-import { FakeFirestore } from './firestore';
-import { CollectionReference, DocumentReference } from './firestore.model';
 
 import defaultOptions from './helpers/defaultMockOptions';
-import { FieldPath } from './path';
-import { Query } from './query';
-import { Timestamp } from './timestamp';
-import { Transaction } from './transaction';
+import type { FakeFirestore, Query, CollectionReference, DocumentReference, FieldValue, Timestamp, Transaction, FieldPath } from "..";
 
 declare class Firestore extends FakeFirestore {
   constructor();
 }
 
 interface GCloudFirestoreMock {
-  Firestore: Firestore;
-  Query: Query;
-  CollectionReference: CollectionReference;
-  DocumentReference: DocumentReference;
-  FieldValue: FieldValue;
-  FieldPath: FieldPath;
-  Timestamp: Timestamp;
-  Transaction: Transaction;
+  Firestore: typeof Firestore;
+  Query: typeof Query;
+  CollectionReference: typeof CollectionReference;
+  DocumentReference: typeof DocumentReference;
+  FieldValue: typeof FieldValue;
+  FieldPath: typeof FieldPath;
+  Timestamp: typeof Timestamp;
+  Transaction: typeof Transaction;
 }
 
 export const firestoreStub = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<GCloudFirestoreMock> => {
@@ -34,19 +28,18 @@ export const firestoreStub = async (overrides?: StubOverrides, options: StubOpti
     }
   }
   return {
-    Query: Query,
-    CollectionReference: CollectionReference,
-    DocumentReference: DocumentReference,
-    FieldValue: FieldValue,
-    FieldPath: FieldPath,
-    Timestamp: Timestamp,
-    Transaction: Transaction,
-    /** @type {Firestore.constructor} */
+    Query,
+    CollectionReference,
+    DocumentReference,
+    FieldValue,
+    FieldPath,
+    Timestamp,
+    Transaction,
     Firestore
   };
 };
 
-export const mockGoogleCloudFirestore = (overrides?: StubOverrides, options: StubOptions = defaultOptions) => {
+export const mockGoogleCloudFirestore = (overrides?: StubOverrides, options: StubOptions = defaultOptions): void => {
   mockModuleIfFound("@google-cloud/firestore", overrides, options);
 };
 

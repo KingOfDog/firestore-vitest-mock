@@ -414,8 +414,8 @@ describe(
 
       describe("withConverter", () => {
         const converter = {
-          fromFirestore: () => { },
-          toFirestore: () => { }
+          fromFirestore: () => { return; },
+          toFirestore: () => { return; }
         };
 
         test("single document", async () => {

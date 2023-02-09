@@ -17,8 +17,8 @@ export const mockQueryOnSnapshot = vi.fn();
 export const mockWithConverter = vi.fn();
 
 export class Query {
-  private filters: QueryFilter[] = [];
-  private selectFields?: string[];
+  protected filters: QueryFilter[] = [];
+  protected selectFields?: string[];
 
   constructor(public collectionName: string, public firestore: FakeFirestore, public isGroupQuery = false) {
   }
@@ -41,9 +41,10 @@ export class Query {
       }
     ];
 
-    while (queue.length > 0) {
+    let entry;
+    while (entry = queue.shift()) {
       // Get a collection
-      const { lastParent, collections } = queue.shift()!;
+      const { lastParent, collections } = entry;
 
       Object.entries(collections).forEach(([collectionPath, docs]) => {
         const prefix = lastParent ? `${lastParent}/` : "";
@@ -53,19 +54,19 @@ export class Query {
 
         // If this is a matching collection, grep its documents
         if (lastPathComponent === this.collectionName) {
-          const docHashes = docs!.map(doc => {
+          const docHashes = docs?.map(doc => {
             // Fetch the document from the mock db
             const path = `${newLastParent}/${doc.id}`;
             return {
               ...doc,
               _ref: this.firestore._doc(path)
             };
-          });
+          }) ?? [];
           requestedRecords.push(...docHashes);
         }
 
         // Enqueue adjacent collections for next run
-        docs!.forEach(doc => {
+        docs?.forEach(doc => {
           if (doc._collections) {
             queue.push({
               lastParent: `${prefix}${collectionPath}/${doc.id}`,
@@ -144,6 +145,6 @@ export class Query {
     }
 
     // Returns an unsubscribe function
-    return () => { };
+    return () => { return; };
   }
 }
