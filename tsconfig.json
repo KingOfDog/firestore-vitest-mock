@@ -20,6 +20,7 @@
     "noEmitOnError": true,
     "noUnusedLocals": true,
     "importHelpers": true,
+    "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types", "./@types"],
     "lib": ["es2018"],
     "types": ["node"],

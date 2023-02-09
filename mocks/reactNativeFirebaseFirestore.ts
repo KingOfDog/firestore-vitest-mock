@@ -9,14 +9,14 @@ declare class Firestore extends FakeFirestore {
 }
 
 interface GCloudFirestoreMock {
-  Firestore: Firestore;
-  Query: Query;
-  CollectionReference: CollectionReference;
-  DocumentReference: DocumentReference;
-  FieldValue: FieldValue;
-  FieldPath: FieldPath;
-  Timestamp: Timestamp;
-  Transaction: Transaction;
+  Firestore: typeof Firestore;
+  Query: typeof Query;
+  CollectionReference: typeof CollectionReference;
+  DocumentReference: typeof DocumentReference;
+  FieldValue: typeof FieldValue;
+  FieldPath: typeof FieldPath;
+  Timestamp: typeof Timestamp;
+  Transaction: typeof Transaction;
 }
 
 export const firestoreStub = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<GCloudFirestoreMock> => {
