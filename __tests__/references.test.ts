@@ -11,7 +11,7 @@ import {
   mockStartAfter,
   mockStartAt,
   DocumentReference,
-  CollectionReference
+  CollectionReference,
 } from "../mocks/firestore";
 
 describe("Reference Sentinels", () => {
@@ -32,11 +32,11 @@ describe("Reference Sentinels", () => {
           family: [
             { id: "thing1", name: "Thing 1", relation: "pet" },
             { id: "thing2", name: "Thing 2", relation: "pet" },
-            { id: "deborah", name: "Deborah", relation: "wife" }
-          ]
-        }
-      }
-    ]
+            { id: "deborah", name: "Deborah", relation: "wife" },
+          ],
+        },
+      },
+    ],
   });
 
   describe("Collection Reference", () => {
@@ -46,9 +46,7 @@ describe("Reference Sentinels", () => {
       expect(charactersRef.parent).toBeUndefined();
       expect(mockCollection).toHaveBeenCalledWith("characters");
 
-      expect(db.collection("non-existent")).toBeInstanceOf(
-        CollectionReference
-      );
+      expect(db.collection("non-existent")).toBeInstanceOf(CollectionReference);
       expect(mockCollection).toHaveBeenCalledWith("non-existent");
     });
 

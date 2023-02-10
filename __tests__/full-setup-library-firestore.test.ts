@@ -3,16 +3,18 @@ import { beforeEach, describe, expect, vi, test, afterEach } from "vitest";
 describe.each([
   {
     library: "@google-cloud/firestore",
-    mockFunction: "mockGoogleCloudFirestore"
+    mockFunction: "mockGoogleCloudFirestore",
   },
   {
     library: "@react-native-firebase/firestore",
-    mockFunction: "mockReactNativeFirestore"
-  }
+    mockFunction: "mockReactNativeFirestore",
+  },
 ])("mocking $library with %mockFunction", async ({ library, mockFunction }) => {
   const FirestoreMock = await import("..");
 
-  const flushPromises = () => new Promise(setImmediate);
+  const flushPromises = async (): Promise<void> => {
+    await new Promise(setImmediate);
+  };
   const { Timestamp } = await import("../mocks/timestamp");
   const {
     mockGet,
@@ -51,11 +53,11 @@ describe.each([
                   name: "Los Angeles",
                   state: "CA",
                   country: "USA",
-                  visited: true
-                }
-              ]
-            }
-          }
+                  visited: true,
+                },
+              ],
+            },
+          },
         ],
         cities: [
           { id: "LA", name: "Los Angeles", state: "CA", country: "USA" },
@@ -63,10 +65,10 @@ describe.each([
             id: "DC",
             name: "Disctric of Columbia",
             state: "DC",
-            country: "USA"
-          }
-        ]
-      }
+            country: "USA",
+          },
+        ],
+      },
     });
 
     let Firestore;
@@ -82,7 +84,7 @@ describe.each([
       const firestore = new Firestore();
       firestore.settings({ ignoreUndefinedProperties: true });
       expect(mockSettings).toHaveBeenCalledWith({
-        ignoreUndefinedProperties: true
+        ignoreUndefinedProperties: true,
       });
     });
 
@@ -95,7 +97,7 @@ describe.each([
           .add({
             first: "Ada",
             last: "Lovelace",
-            born: 1815
+            born: 1815,
           })
           .then(function (docRef) {
             expect(mockAdd).toHaveBeenCalled();
@@ -109,12 +111,12 @@ describe.each([
         return firestore
           .collection("users")
           .get()
-          .then(querySnapshot => {
+          .then((querySnapshot) => {
             expect(querySnapshot.forEach).toBeTruthy();
             expect(querySnapshot.docs.length).toBe(2);
             expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
-            querySnapshot.forEach(doc => {
+            querySnapshot.forEach((doc) => {
               expect(doc.exists).toBe(true);
               expect(doc.data()).toBeTruthy();
             });
@@ -128,7 +130,7 @@ describe.each([
           .collection("users")
           .select("first", "last")
           .get()
-          .then(querySnapshot => {
+          .then((querySnapshot) => {
             expect(mockSelect).toHaveBeenCalledWith("first", "last");
 
             const data = querySnapshot.docs[0].data();
@@ -145,7 +147,7 @@ describe.each([
           .collection("users")
           .select()
           .get()
-          .then(querySnapshot => {
+          .then((querySnapshot) => {
             expect(mockSelect).toHaveBeenCalledWith();
 
             const data = querySnapshot.docs[0].data();
@@ -160,7 +162,7 @@ describe.each([
           .collectionGroup("users")
           .where("last", "==", "builder")
           .get()
-          .then(querySnapshot => {
+          .then((querySnapshot) => {
             expect(mockCollectionGroup).toHaveBeenCalledWith("users");
             expect(mockGet).toHaveBeenCalled();
             expect(mockWhere).toHaveBeenCalledWith("last", "==", "builder");
@@ -169,7 +171,7 @@ describe.each([
             expect(querySnapshot.docs.length).toBe(2);
             expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
-            querySnapshot.forEach(doc => {
+            querySnapshot.forEach((doc) => {
               expect(doc.exists).toBe(true);
               expect(doc.data()).toBeTruthy();
             });
@@ -184,7 +186,7 @@ describe.each([
           .collectionGroup("cities")
           .where("country", "==", "USA")
           .get()
-          .then(querySnapshot => {
+          .then((querySnapshot) => {
             expect(mockCollectionGroup).toHaveBeenCalledWith("cities");
             expect(mockGet).toHaveBeenCalledTimes(1);
             expect(mockWhere).toHaveBeenCalledWith("country", "==", "USA");
@@ -193,7 +195,7 @@ describe.each([
             expect(querySnapshot.docs.length).toBe(3);
             expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
-            querySnapshot.forEach(doc => {
+            querySnapshot.forEach((doc) => {
               expect(doc.exists).toBe(true);
               expect(doc.data()).toBeTruthy();
             });
@@ -209,13 +211,13 @@ describe.each([
           .set({
             name: "Los Angeles",
             state: "CA",
-            country: "USA"
+            country: "USA",
           })
           .then(function () {
             expect(mockSet).toHaveBeenCalledWith({
               name: "Los Angeles",
               state: "CA",
-              country: "USA"
+              country: "USA",
             });
           });
       });
@@ -229,7 +231,7 @@ describe.each([
 
         return washingtonRef
           .update({
-            capital: true
+            capital: true,
           })
           .then(function (value) {
             expect(value.updateTime).toStrictEqual(now);
@@ -260,10 +262,10 @@ describe.each([
           expect(mockBatch).toHaveBeenCalled();
           expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
           expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, {
-            population: 1000000
+            population: 1000000,
           });
           expect(mockBatchSet).toHaveBeenCalledWith(nycRef, {
-            name: "New York City"
+            name: "New York City",
           });
           expect(mockBatchCommit).toHaveBeenCalled();
         });
@@ -290,9 +292,7 @@ describe.each([
 
         expect(result).toEqual(expect.any(Array));
         expect(result).toHaveLength(1);
-        expect(result[0]).toEqual(
-          expect.any(CollectionReference)
-        );
+        expect(result[0]).toEqual(expect.any(CollectionReference));
         expect(result[0].id).toBe("cities");
       });
 
@@ -311,10 +311,7 @@ describe.each([
       test("listCollections calls mockListCollections", async () => {
         const firestore = new Firestore();
 
-        await firestore
-          .collection("users")
-          .doc("abc123")
-          .listCollections();
+        await firestore.collection("users").doc("abc123").listCollections();
 
         expect(mockListCollections).toHaveBeenCalled();
       });
@@ -328,7 +325,7 @@ describe.each([
         firestore
           .collection("cities")
           .doc("LA")
-          .onSnapshot(doc => {
+          .onSnapshot((doc) => {
             expect(doc).toHaveProperty("createTime");
             expect(doc).toHaveProperty("data");
             expect(doc.data).toBeInstanceOf(Function);
@@ -355,9 +352,9 @@ describe.each([
           .onSnapshot(
             {
               // Listen for document metadata changes
-              includeMetadataChanges: true
+              includeMetadataChanges: true,
             },
-            doc => {
+            (doc) => {
               expect(doc).toHaveProperty("createTime");
               expect(doc).toHaveProperty("data");
               expect(doc.data).toBeInstanceOf(Function);
@@ -379,7 +376,7 @@ describe.each([
         const unsubscribe = firestore
           .collection("cities")
           .where("state", "==", "CA")
-          .onSnapshot(querySnapshot => {
+          .onSnapshot((querySnapshot) => {
             expect(querySnapshot).toHaveProperty(
               "forEach",
               expect.any(Function)

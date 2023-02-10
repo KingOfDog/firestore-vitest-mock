@@ -6,11 +6,18 @@ export const mockDeleteFieldValue = vi.fn();
 export const mockIncrementFieldValue = vi.fn();
 export const mockServerTimestampFieldValue = vi.fn();
 
-type FieldValueType = 'arrayUnion' | 'arrayRemove' | 'increment' | 'serverTimestamp' | 'delete';
+type FieldValueType =
+  | "arrayUnion"
+  | "arrayRemove"
+  | "increment"
+  | "serverTimestamp"
+  | "delete";
 
 export class FieldValue {
-  constructor(private type: FieldValueType, private value?: unknown) {
-  }
+  constructor(
+    private readonly type: FieldValueType,
+    private readonly value?: unknown
+  ) {}
 
   isEqual(other: FieldValue): boolean {
     return (
@@ -20,7 +27,7 @@ export class FieldValue {
     );
   }
 
-  static arrayUnion(elements: Array<unknown> = []): FieldValue {
+  static arrayUnion(elements: unknown[] = []): FieldValue {
     mockArrayUnionFieldValue(...arguments);
     if (!Array.isArray(elements)) {
       elements = [elements];
@@ -28,7 +35,7 @@ export class FieldValue {
     return new FieldValue("arrayUnion", elements);
   }
 
-  static arrayRemove(elements: Array<unknown>): FieldValue {
+  static arrayRemove(elements: unknown[]): FieldValue {
     mockArrayRemoveFieldValue(...arguments);
     if (!Array.isArray(elements)) {
       elements = [elements];

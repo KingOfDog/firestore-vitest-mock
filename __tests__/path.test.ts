@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 
 import { mockFirebase } from "..";
-mockFirebase({ database: {} });
 import * as firebase from "firebase";
 import { Path } from "../mocks/path";
+mockFirebase({ database: {} });
 
 describe("Single values transformed by field sentinels", () => {
   test("isEqual", () => {

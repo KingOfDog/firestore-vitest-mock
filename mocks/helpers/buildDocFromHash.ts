@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { DocumentHash, MockedDocument } from "./buildDocFromHash.model";
+import {
+  type DocumentHash,
+  type MockedDocument,
+} from "./buildDocFromHash.model";
 
 import { Timestamp } from "../timestamp";
 
@@ -8,17 +11,18 @@ export default function buildDocFromHash(
   id?: string,
   selectFields?: string[]
 ): MockedDocument {
-  const exists = !!hash || false;
+  const exists = !(hash == null) || false;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return {
-    createTime: (hash && hash._createTime) || Timestamp.now(),
+    createTime: hash?._createTime != null || Timestamp.now(),
     exists,
-    id: (hash && hash.id) ?? id,
-    readTime: hash && hash._readTime,
-    ref: hash && hash._ref,
+    id: hash?.id ?? id,
+    readTime: hash?._readTime,
+    ref: hash?._ref,
     metadata: {
-      hasPendingWrites: "Server"
+      hasPendingWrites: "Server",
     },
-    updateTime: hash && hash._updateTime,
+    updateTime: hash?._updateTime,
     data() {
       if (!exists) {
         // From Firestore docs: "Returns 'undefined' if the document doesn't exist."
@@ -29,18 +33,19 @@ export default function buildDocFromHash(
       if (!hash?._ref.parent.firestore.options.includeIdsInData) {
         delete copy.id;
       }
-      // @ts-expect-error Should not be included in data
       delete copy._collections;
       delete copy._createTime;
       delete copy._readTime;
-      // @ts-expect-error Should not be included in data
       delete copy._ref;
       delete copy._updateTime;
 
       if (selectFields !== undefined) {
         copy = Object.keys(copy)
-          .filter(key => key === "id" || selectFields.includes(key))
-          .reduce((res: Record<string, unknown>, key) => ((res[key] = copy[key]), res), {});
+          .filter((key) => key === "id" || selectFields.includes(key))
+          .reduce((res: Record<string, unknown>, key) => {
+            res[key] = copy[key];
+            return res;
+          }, {});
       }
 
       return copy;
@@ -50,20 +55,27 @@ export default function buildDocFromHash(
       //  fieldPath The path (e.g. 'foo' or 'foo.bar') to a specific field.
       const parts = fieldPath.split(".");
       const data = this.data();
-      if (!data) { return null; }
-      return parts.reduce((acc: Record<string, unknown> | null, part, index) => {
-        if (!acc) { return null; }
-        const value = acc[part];
-        // if no key is found
-        if (value === undefined) {
-          // return null if we are on the last item in parts
-          // otherwise, return an empty object, so we can continue to iterate
-          return parts.length - 1 === index ? null : {};
-        }
+      if (data == null) {
+        return null;
+      }
+      return parts.reduce(
+        (acc: Record<string, unknown> | null, part, index) => {
+          if (acc == null) {
+            return null;
+          }
+          const value = acc[part];
+          // if no key is found
+          if (value === undefined) {
+            // return null if we are on the last item in parts
+            // otherwise, return an empty object, so we can continue to iterate
+            return parts.length - 1 === index ? null : {};
+          }
 
-        // if there is a value, return it
-        return value as Record<string, unknown> | null;
-      }, data);
-    }
+          // if there is a value, return it
+          return value as Record<string, unknown> | null;
+        },
+        data
+      );
+    },
   } as MockedDocument;
 }

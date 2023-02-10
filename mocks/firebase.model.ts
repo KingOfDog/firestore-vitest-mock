@@ -1,7 +1,7 @@
-import type { Mock } from 'vitest';
-import type { FirebaseUser, FakeAuth } from './auth';
-import type { FakeFirestore } from './firestore';
-import DefaultOptions from './helpers/defaultMockOptions';
+import type { Mock } from "vitest";
+import type { FirebaseUser, FakeAuth } from "./auth";
+import type { FakeFirestore } from "./firestore";
+import type DefaultOptions from "./helpers/defaultMockOptions";
 
 export interface DatabaseDocument {
   id: string;
@@ -9,9 +9,10 @@ export interface DatabaseDocument {
   [key: string]: unknown;
 }
 
-export interface DatabaseCollections {
-  [collectionName: string]: Array<DatabaseDocument> | undefined;
-}
+export type DatabaseCollections = Record<
+  string,
+  DatabaseDocument[] | undefined
+>;
 
 export type FakeFirestoreDocumentData = Record<string, unknown>;
 
@@ -20,6 +21,7 @@ export interface StubOverrides {
   currentUser?: FirebaseUser;
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 export interface StubOptions extends Partial<typeof DefaultOptions> {
   [key: string]: unknown;
 }
@@ -29,6 +31,6 @@ export interface FirebaseMock {
   credential: {
     cert: Mock;
   };
-  auth(): FakeAuth;
-  firestore(): FakeFirestore;
+  auth: () => FakeAuth;
+  firestore: () => FakeFirestore;
 }

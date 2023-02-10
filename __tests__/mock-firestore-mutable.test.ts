@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-import {
-  FakeFirestore,
-  mockCollection,
-  mockDoc
-} from "../mocks/firestore";
+import { FakeFirestore, mockCollection, mockDoc } from "../mocks/firestore";
 
 describe("database mutations", () => {
   beforeEach(() => {
@@ -13,7 +9,7 @@ describe("database mutations", () => {
   });
 
   // db is a fn, instead a shared variable to enforce sandboxing data on each test.
-  const db = () =>
+  const db = (): FakeFirestore =>
     new FakeFirestore(
       {
         characters: [
@@ -21,7 +17,7 @@ describe("database mutations", () => {
             id: "homer",
             name: "Homer",
             occupation: "technician",
-            address: { street: "742 Evergreen Terrace" }
+            address: { street: "742 Evergreen Terrace" },
           },
           { id: "krusty", name: "Krusty", occupation: "clown" },
           {
@@ -33,11 +29,11 @@ describe("database mutations", () => {
                 { id: "violet", name: "Violet", relation: "daughter" },
                 { id: "dash", name: "Dash", relation: "son" },
                 { id: "jackjack", name: "Jackjack", relation: "son" },
-                { id: "helen", name: "Helen", relation: "wife" }
-              ]
-            }
-          }
-        ]
+                { id: "helen", name: "Helen", relation: "wife" },
+              ],
+            },
+          },
+        ],
       },
       { mutable: true }
     );
@@ -52,7 +48,7 @@ describe("database mutations", () => {
       .set({
         age: 15,
         food: "omnivore",
-        special: "tunneling"
+        special: "tunneling",
       });
     expect(mockCollection).toHaveBeenCalledWith("dragons");
     expect(mockDoc).toHaveBeenCalledWith("whisperingDeath");
@@ -103,7 +99,7 @@ describe("database mutations", () => {
     const newDoc1 = await col.add({
       name: "Lisa",
       occupation: "President-in-waiting",
-      address: { street: "742 Evergreen Terrace" }
+      address: { street: "742 Evergreen Terrace" },
     });
 
     const test = await newDoc1.get();
@@ -112,7 +108,7 @@ describe("database mutations", () => {
     const newDoc2 = await col.add({
       name: "Lisa",
       occupation: "President-in-waiting",
-      address: { street: "742 Evergreen Terrace" }
+      address: { street: "742 Evergreen Terrace" },
     });
     expect(newDoc2.id).not.toEqual(newDoc1.id);
   });

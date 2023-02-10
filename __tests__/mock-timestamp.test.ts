@@ -4,7 +4,7 @@ import {
   mockTimestampToDate,
   mockTimestampToMillis,
   mockTimestampNow,
-  Timestamp
+  Timestamp,
 } from "../mocks/firestore";
 import * as admin from "firebase-admin";
 const ref = admin.firestore.Timestamp;

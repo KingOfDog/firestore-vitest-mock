@@ -1,8 +1,8 @@
-import { DocumentReference } from '../firestore';
-import { FakeFirestoreDatabase } from '../firestore.model';
-import { Timestamp } from '../timestamp';
+import { type DocumentReference } from "../firestore";
+import { type FakeFirestoreDatabase } from "../firestore.model";
+import { type Timestamp } from "../timestamp";
 
-export type DocumentData = { [field: string]: unknown };
+export type DocumentData = Record<string, unknown>;
 
 export interface DocumentHash extends DocumentData {
   id?: string;
@@ -20,9 +20,9 @@ export interface MockedDocument<T = DocumentData> {
   readTime: Timestamp;
   ref: DocumentReference;
   metadata: {
-    hasPendingWrites: 'Server';
+    hasPendingWrites: "Server";
   };
   updateTime: Timestamp;
-  data(): T | undefined;
-  get(fieldPath: string): unknown;
+  data: () => T | undefined;
+  get: (fieldPath: string) => unknown;
 }

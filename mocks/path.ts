@@ -1,6 +1,5 @@
 export abstract class Path<T> {
-  constructor(public segments: string[]) {
-  }
+  constructor(public segments: string[]) {}
 
   compareTo(other: Path<T>): number {
     const len = Math.min(this.segments.length, other.segments.length);
@@ -27,14 +26,16 @@ export abstract class Path<T> {
 }
 
 export class FieldPath extends Path<FieldPath> {
-  private static _DOCUMENT_ID = new FieldPath("__name__");
+  private static readonly _DOCUMENT_ID = new FieldPath("__name__");
 
   constructor(...segments: string[]) {
     super(segments);
   }
+
   static documentId(): FieldPath {
     return FieldPath._DOCUMENT_ID;
   }
+
   isEqual(other: FieldPath): boolean {
     return super.isEqual(other);
   }

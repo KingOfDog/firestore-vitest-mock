@@ -1,9 +1,13 @@
 import { vi } from "vitest";
-import { FakeFirestore } from './firestore';
-import { DocumentHash } from './helpers/buildDocFromHash.model';
+import { type FakeFirestore } from "./firestore";
+import { type DocumentHash } from "./helpers/buildDocFromHash.model";
 
 import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
-import { Comparator, MockedQuerySnapshot, QueryFilter } from './helpers/buildQuerySnapShot.model';
+import {
+  type Comparator,
+  type MockedQuerySnapshot,
+  type QueryFilter,
+} from "./helpers/buildQuerySnapShot.model";
 
 export const mockGet = vi.fn();
 export const mockSelect = vi.fn();
@@ -20,12 +24,15 @@ export class Query {
   protected filters: QueryFilter[] = [];
   protected selectFields?: string[];
 
-  constructor(public collectionName: string, public firestore: FakeFirestore, public isGroupQuery = false) {
-  }
+  constructor(
+    public collectionName: string,
+    public firestore: FakeFirestore,
+    public isGroupQuery = false
+  ) {}
 
-  get(): Promise<MockedQuerySnapshot> {
+  async get(): Promise<MockedQuerySnapshot> {
     mockGet(...arguments);
-    return Promise.resolve(this._get());
+    return await Promise.resolve(this._get());
   }
 
   _get(): MockedQuerySnapshot {
@@ -37,12 +44,12 @@ export class Query {
     const queue = [
       {
         lastParent: "",
-        collections: this.firestore.database
-      }
+        collections: this.firestore.database,
+      },
     ];
 
     let entry;
-    while (entry = queue.shift()) {
+    while ((entry = queue.shift()) != null) {
       // Get a collection
       const { lastParent, collections } = entry;
 
@@ -54,23 +61,25 @@ export class Query {
 
         // If this is a matching collection, grep its documents
         if (lastPathComponent === this.collectionName) {
-          const docHashes = docs?.map(doc => {
-            // Fetch the document from the mock db
-            const path = `${newLastParent}/${doc.id}`;
-            return {
-              ...doc,
-              _ref: this.firestore._doc(path)
-            } as DocumentHash;
-          }) ?? [];
+          const docHashes =
+            docs?.map((doc) => {
+              // Fetch the document from the mock db
+              const path = `${newLastParent}/${doc.id}`;
+              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+              return {
+                ...doc,
+                _ref: this.firestore._doc(path),
+              } as DocumentHash;
+            }) ?? [];
           requestedRecords.push(...docHashes);
         }
 
         // Enqueue adjacent collections for next run
-        docs?.forEach(doc => {
-          if (doc._collections) {
+        docs?.forEach((doc) => {
+          if (doc._collections != null) {
             queue.push({
               lastParent: `${prefix}${collectionPath}/${doc.id}`,
-              collections: doc._collections
+              collections: doc._collections,
             });
           }
         });
@@ -145,6 +154,6 @@ export class Query {
     }
 
     // Returns an unsubscribe function
-    return () => { return; };
+    return () => {};
   }
 }

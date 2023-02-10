@@ -1,16 +1,34 @@
-import { vi } from 'vitest';
-import { FirebaseMock, StubOptions, StubOverrides } from './firebase.model';
+import { vi } from "vitest";
+import {
+  type FirebaseMock,
+  type StubOptions,
+  type StubOverrides,
+} from "./firebase.model";
+import { type FakeFirestore } from "./firestore";
 
-import defaultOptions from './helpers/defaultMockOptions';
+import defaultOptions from "./helpers/defaultMockOptions";
 
 export const mockInitializeApp = vi.fn();
 export const mockCert = vi.fn();
 
-export const firebaseStub = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<FirebaseMock> => {
-  const { FakeFirestore, FakeAuth, Query, CollectionReference, DocumentReference, FieldValue, Timestamp, Transaction, FieldPath } = await import('firestore-vitest-mock');
+export const firebaseStub = async (
+  overrides?: StubOverrides,
+  options: StubOptions = defaultOptions
+): Promise<FirebaseMock> => {
+  const {
+    FakeFirestore,
+    FakeAuth,
+    Query,
+    CollectionReference,
+    DocumentReference,
+    FieldValue,
+    Timestamp,
+    Transaction,
+    FieldPath,
+  } = await import("firestore-vitest-mock");
 
   // Prepare namespaced classes
-  function firestoreConstructor() {
+  function firestoreConstructor(): FakeFirestore {
     return new FakeFirestore(overrides?.database, options);
   }
 
@@ -42,15 +60,22 @@ export const firebaseStub = async (overrides?: StubOverrides, options: StubOptio
   };
 };
 
-export const mockFirebase = async (overrides?: StubOverrides, options: StubOptions = defaultOptions): Promise<void> => {
-  await mockModuleIfFound('firebase', overrides, options);
-  await mockModuleIfFound('firebase-admin', overrides, options);
+export const mockFirebase = async (
+  overrides?: StubOverrides,
+  options: StubOptions = defaultOptions
+): Promise<void> => {
+  mockModuleIfFound("firebase", overrides, options);
+  mockModuleIfFound("firebase-admin", overrides, options);
 };
 
-async function mockModuleIfFound(moduleName: string, overrides?: StubOverrides, options?: StubOptions) {
+async function mockModuleIfFound(
+  moduleName: string,
+  overrides?: StubOverrides,
+  options?: StubOptions
+): Promise<void> {
   try {
     // await import.meta.resolve(moduleName);
-    vi.doMock(moduleName, () => firebaseStub(overrides, options));
+    vi.doMock(moduleName, async () => await firebaseStub(overrides, options));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.info(`Module ${moduleName} not found, mocking skipped.`);

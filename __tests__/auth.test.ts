@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-import {
-  mockFirebase,
-  mockInitializeApp,
-} from '../mocks/firebase';
+import { mockFirebase, mockInitializeApp } from "../mocks/firebase";
 import {
   mockCreateUserWithEmailAndPassword,
   mockSignInWithEmailAndPassword,
@@ -14,8 +11,8 @@ import {
   mockGetUser,
   mockCreateCustomToken,
   mockSetCustomUserClaims,
-  mockUseEmulator
-} from '../mocks/auth';
+  mockUseEmulator,
+} from "../mocks/auth";
 
 describe("we can start a firebase application", () => {
   mockFirebase({
@@ -34,18 +31,18 @@ describe("we can start a firebase application", () => {
                 name: "Los Angeles",
                 state: "CA",
                 country: "USA",
-                visited: true
-              }
-            ]
-          }
-        }
+                visited: true,
+              },
+            ],
+          },
+        },
       ],
       cities: [
         { id: "LA", name: "Los Angeles", state: "CA", country: "USA" },
-        { id: "DC", name: "Disctric of Columbia", state: "DC", country: "USA" }
-      ]
+        { id: "DC", name: "Disctric of Columbia", state: "DC", country: "USA" },
+      ],
     },
-    currentUser: { uid: "abc123", displayName: "Bob" }
+    currentUser: { uid: "abc123", displayName: "Bob" },
   });
 
   let firebase;
@@ -58,7 +55,7 @@ describe("we can start a firebase application", () => {
     firebase.initializeApp({
       apiKey: "### FIREBASE API KEY ###",
       authDomain: "### FIREBASE AUTH DOMAIN ###",
-      projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+      projectId: "### CLOUD FIRESTORE PROJECT ID ###",
     });
   });
 
@@ -76,9 +73,7 @@ describe("we can start a firebase application", () => {
     describe("Examples from documentation", () => {
       test("add a user", async () => {
         expect.assertions(1);
-        await firebase
-          .auth()
-          .createUserWithEmailAndPassword("sam", "hill");
+        await firebase.auth().createUserWithEmailAndPassword("sam", "hill");
         expect(mockCreateUserWithEmailAndPassword).toHaveBeenCalledWith(
           "sam",
           "hill"
@@ -138,11 +133,9 @@ describe("we can start a firebase application", () => {
       test("create custom token", async () => {
         expect.assertions(2);
         const claims = {
-          custom: true
+          custom: true,
         };
-        const token = await admin
-          .auth()
-          .createCustomToken("some-uid", claims);
+        const token = await admin.auth().createCustomToken("some-uid", claims);
         expect(mockCreateCustomToken).toHaveBeenCalledWith("some-uid", claims);
         expect(token).toEqual("");
       });
@@ -150,7 +143,7 @@ describe("we can start a firebase application", () => {
       test("set custom user claims", async () => {
         expect.assertions(1);
         const claims = {
-          do: "the thing"
+          do: "the thing",
         };
         await admin.auth().setCustomUserClaims("some-uid", claims);
         expect(mockSetCustomUserClaims).toHaveBeenCalledWith(
@@ -177,7 +170,7 @@ describe("we can start a firebase application", () => {
           providerData: [],
           tenantId: null,
           tokensValidAfterTime: undefined,
-          uid
+          uid,
         };
         mockGetUser.mockReturnValueOnce(userRecord);
         expect.assertions(2);
@@ -193,7 +186,7 @@ describe("we can start a firebase application", () => {
         const result = await admin
           .auth()
           .verifyIdToken("token_string", true)
-          .catch(err => err);
+          .catch((err) => err);
         expect(result).toStrictEqual(error);
       });
     });

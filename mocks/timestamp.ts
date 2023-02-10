@@ -1,5 +1,8 @@
 import { vi } from "vitest";
-import { DatabaseCollections, FakeFirestoreDatabase } from './firestore.model';
+import {
+  type DatabaseCollections,
+  type FakeFirestoreDatabase,
+} from "./firestore.model";
 
 export const mockTimestampToDate = vi.fn<unknown[], Date>();
 export const mockTimestampToMillis = vi.fn<unknown[], number>();
@@ -10,7 +13,7 @@ export const mockTimestampNow = vi.fn<unknown[], Timestamp>();
 export class Timestamp {
   [key: string]: unknown;
 
-  constructor(public seconds: number, public nanoseconds: number) { }
+  constructor(public seconds: number, public nanoseconds: number) {}
 
   isEqual(other: Timestamp): boolean {
     return (
@@ -64,7 +67,10 @@ export class Timestamp {
 
 //
 // Search data for possible timestamps and convert to class.
-export function convertTimestamps(data: DatabaseCollections | Timestamp, path: DatabaseCollections[] = []): FakeFirestoreDatabase | Timestamp {
+export function convertTimestamps(
+  data: DatabaseCollections | Timestamp,
+  path: DatabaseCollections[] = []
+): FakeFirestoreDatabase | Timestamp {
   if (!data) {
     return data;
   }
@@ -81,14 +87,14 @@ export function convertTimestamps(data: DatabaseCollections | Timestamp, path: D
     if (isTimestamp(data)) {
       return new Timestamp(data.seconds, data.nanoseconds);
     } else {
-      data = data as DatabaseCollections;
       // Search recursively for any timestamps in this data
       // Keep track of the path taken, so we can avoid self-referencing loops
       // Note: running full-setup.test.js will fail without this check
       // add console.log(`${path} => ${k}`); to see how this class is added as a property
       path.push(data);
-      keys.forEach(k => {
-        data[k] = convertTimestamps(data[k] as Timestamp | DatabaseCollections, path);
+      keys.forEach((k) => {
+        // @ts-expect-error Type safety
+        data[k] = convertTimestamps(data[k], path);
       });
       path.pop();
     }
@@ -98,16 +104,17 @@ export function convertTimestamps(data: DatabaseCollections | Timestamp, path: D
 
 function isTimestamp(data: Record<string, unknown>): data is Timestamp {
   const keys = Object.keys(data);
-  return keys.length === 2 &&
-    !!keys.find(k => k === "seconds") &&
-    !!keys.find(k => k === "nanoseconds");
+  return (
+    keys.length === 2 &&
+    !!keys.find((k) => k === "seconds") &&
+    !!keys.find((k) => k === "nanoseconds")
+  );
 }
-
 
 export const mocks = {
   mockTimestampToDate,
   mockTimestampToMillis,
   mockTimestampFromDate,
   mockTimestampFromMillis,
-  mockTimestampNow
+  mockTimestampNow,
 };

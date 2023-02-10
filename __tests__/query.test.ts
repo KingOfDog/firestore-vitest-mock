@@ -8,12 +8,10 @@ import {
   mockOffset,
   Timestamp,
   Query,
-  DocumentReference
+  DocumentReference,
 } from "../mocks/firestore";
-import {
-  mockFirebase
-} from "..";
-import { FirebaseUser } from '../mocks/auth';
+import { mockFirebase } from "..";
+import { type FirebaseUser } from "../mocks/auth";
 
 describe("Queries", () => {
   mockFirebase(
@@ -28,7 +26,7 @@ describe("Queries", () => {
             food: ["banana", "mango"],
             foodCount: 1,
             foodEaten: [500, 20],
-            createdAt: new Timestamp(1628939119, 0)
+            createdAt: new Timestamp(1628939119, 0),
           },
           {
             id: "elephant",
@@ -38,7 +36,7 @@ describe("Queries", () => {
             food: ["banana", "peanut"],
             foodCount: 0,
             foodEaten: [0, 500],
-            createdAt: new Timestamp(1628939129, 0)
+            createdAt: new Timestamp(1628939129, 0),
           },
           {
             id: "chicken",
@@ -53,14 +51,14 @@ describe("Queries", () => {
               foodSchedule: [
                 {
                   id: "nut",
-                  interval: "whenever"
+                  interval: "whenever",
                 },
                 {
                   id: "leaf",
-                  interval: "hourly"
-                }
-              ]
-            }
+                  interval: "hourly",
+                },
+              ],
+            },
           },
           {
             id: "ant",
@@ -75,29 +73,29 @@ describe("Queries", () => {
               foodSchedule: [
                 {
                   id: "leaf",
-                  interval: "daily"
+                  interval: "daily",
                 },
                 {
                   id: "peanut",
-                  interval: "weekly"
-                }
-              ]
-            }
+                  interval: "weekly",
+                },
+              ],
+            },
           },
           {
             id: "worm",
             name: "worm",
-            legCount: null
+            legCount: null,
           },
           {
             id: "pogo-stick",
             name: "pogo-stick",
-            food: false
-          }
+            food: false,
+          },
         ],
         foodSchedule: [
           { id: "ants", interval: "daily" },
-          { id: "cows", interval: "twice daily" }
+          { id: "cows", interval: "twice daily" },
         ],
         nested: [
           {
@@ -114,24 +112,24 @@ describe("Queries", () => {
                           foodSchedule: [
                             {
                               id: "layer4_a",
-                              interval: "daily"
+                              interval: "daily",
                             },
                             {
                               id: "layer4_b",
-                              interval: "weekly"
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
+                              interval: "weekly",
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
-      currentUser: { uid: "homer-user" } as FirebaseUser
+      currentUser: { uid: "homer-user" } as FirebaseUser,
     },
     { simulateQueryFilters: true }
   );
@@ -144,17 +142,14 @@ describe("Queries", () => {
     firebase.initializeApp({
       apiKey: "### FIREBASE API KEY ###",
       authDomain: "### FIREBASE AUTH DOMAIN ###",
-      projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+      projectId: "### CLOUD FIRESTORE PROJECT ID ###",
     });
 
     db = firebase.firestore();
   });
 
   test("it can query a single document", async () => {
-    const monkey = await db
-      .collection("animals")
-      .doc("monkey")
-      .get();
+    const monkey = await db.collection("animals").doc("monkey").get();
 
     expect(monkey).toHaveProperty("exists", true);
     expect(mockCollection).toHaveBeenCalledWith("animals");
@@ -222,7 +217,7 @@ describe("Queries", () => {
 
     // Make sure that forEach works properly
     expect(animals).toHaveProperty("forEach", expect.any(Function));
-    animals.forEach(doc => {
+    animals.forEach((doc) => {
       // this should run 4 times, as asserted by `expect.assertions` above
       expect(doc).toHaveProperty("exists", true);
     });
@@ -258,7 +253,7 @@ describe("Queries", () => {
       .where("interval", "==", "daily");
 
     expect.assertions(6);
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       const scheduleItems = await transaction.get(antSchedule);
       expect(mockCollection).toHaveBeenCalledWith("animals");
       expect(mockCollection).toHaveBeenCalledWith("foodSchedule");
@@ -299,7 +294,7 @@ describe("Queries", () => {
       .where("interval", "<=", "hourly"); // should have 1 result
 
     expect.assertions(6);
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       const scheduleItems = await transaction.get(chickenSchedule);
       expect(scheduleItems).toHaveProperty("docs", expect.any(Array));
       expect(scheduleItems).toHaveProperty("size", 1); // Returns 1 document
@@ -320,7 +315,7 @@ describe("Queries", () => {
     const allSchedules = await db.collectionGroup("foodSchedule").get();
 
     expect(allSchedules).toHaveProperty("size", 8); // Returns all 8
-    const paths = allSchedules.docs.map(doc => doc.ref.path).sort();
+    const paths = allSchedules.docs.map((doc) => doc.ref.path).sort();
     const expectedPaths = [
       "nested/collections/have/lots/of/applications/foodSchedule/layer4_a",
       "nested/collections/have/lots/of/applications/foodSchedule/layer4_b",
@@ -329,7 +324,7 @@ describe("Queries", () => {
       "animals/chicken/foodSchedule/leaf",
       "animals/chicken/foodSchedule/nut",
       "foodSchedule/ants",
-      "foodSchedule/cows"
+      "foodSchedule/cows",
     ].sort();
     expect(paths).toStrictEqual(expectedPaths);
   });
@@ -351,9 +346,7 @@ describe("Queries", () => {
 
   test("it returns a Query from query methods", () => {
     const ref = db.collection("animals");
-    expect(ref.where("type", "==", "mammal")).toBeInstanceOf(
-      Query
-    );
+    expect(ref.where("type", "==", "mammal")).toBeInstanceOf(Query);
     expect(ref.limit(1)).toBeInstanceOf(Query);
     expect(ref.orderBy("type")).toBeInstanceOf(Query);
     expect(ref.startAfter(null)).toBeInstanceOf(Query);
@@ -405,14 +398,14 @@ describe("Queries", () => {
 
     // There's got to be a better way to mock like this, but at least it works.
     mockWhere.mockReturnValueOnce({
-      get() {
-        return Promise.resolve({
+      async get() {
+        return await Promise.resolve({
           docs: [
             { id: "monkey", name: "monkey", type: "mammal" },
-            { id: "elephant", name: "elephant", type: "mammal" }
-          ]
+            { id: "elephant", name: "elephant", type: "mammal" },
+          ],
         });
-      }
+      },
     });
     result = await ref.where("type", "==", "mammal").get();
     expect(result.docs.length).toBe(2);

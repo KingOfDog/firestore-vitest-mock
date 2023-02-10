@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, vi, test, beforeAll } from "vitest";
 
-import {
-  mockFirebase,
-} from "..";
+import { mockFirebase } from "..";
 import {
   mockRunTransaction,
   mockDelete,
@@ -16,12 +14,12 @@ import {
   mockGetAll,
   mockGetAllTransaction,
   mockCreateTransaction,
-  Transaction
+  Transaction,
 } from "../mocks/firestore";
 
 describe("Transactions", () => {
   mockFirebase({
-    database: {}
+    database: {},
   });
 
   let firebase;
@@ -32,7 +30,7 @@ describe("Transactions", () => {
     firebase.initializeApp({
       apiKey: "### FIREBASE API KEY ###",
       authDomain: "### FIREBASE AUTH DOMAIN ###",
-      projectId: "### CLOUD FIRESTORE PROJECT ID ###"
+      projectId: "### CLOUD FIRESTORE PROJECT ID ###",
     });
     db = firebase.firestore();
   });
@@ -43,7 +41,7 @@ describe("Transactions", () => {
   });
 
   test("it returns a Promise", () => {
-    const result = db.runTransaction(async () => { return; });
+    const result = db.runTransaction(async () => {});
 
     expect(result).toBeInstanceOf(Promise);
     expect(mockRunTransaction).toHaveBeenCalled();
@@ -68,7 +66,7 @@ describe("Transactions", () => {
     expect(mockGetTransaction).not.toHaveBeenCalled();
     const ref = db.collection("some").doc("body");
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       // `get` should return a promise
       const result = transaction.get(ref);
       expect(result).toBeInstanceOf(Promise);
@@ -88,7 +86,7 @@ describe("Transactions", () => {
     expect(mockSetTransaction).not.toHaveBeenCalled();
     const ref = db.collection("some").doc("body");
 
-    await db.runTransaction(transaction => {
+    await db.runTransaction((transaction) => {
       const newData = { foo: "bar" };
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
@@ -104,7 +102,7 @@ describe("Transactions", () => {
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
     const ref = db.collection("some").doc("body");
 
-    await db.runTransaction(transaction => {
+    await db.runTransaction((transaction) => {
       const newData = { foo: "bar" };
       const result = transaction.update(ref, newData);
 
@@ -119,7 +117,7 @@ describe("Transactions", () => {
     expect(mockDeleteTransaction).not.toHaveBeenCalled();
     const ref = db.collection("some").doc("body");
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       const result = transaction.delete(ref);
 
       expect(result).toBeInstanceOf(Transaction);
@@ -134,7 +132,7 @@ describe("Transactions", () => {
     const ref1 = db.collection("some").doc("body");
     const ref2 = ref1.collection("once").doc("told");
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       // FIXME: getAll is not defined on the client library, so this is a shot in the dark
       const result = await transaction.getAll(ref1, ref2);
 
@@ -150,9 +148,9 @@ describe("Transactions", () => {
     // Example from documentation
     // https://googleapis.dev/nodejs/firestore/latest/Transaction.html#create-examples
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(async (transaction) => {
       const documentRef = db.doc("col/doc");
-      return transaction.get(documentRef).then(doc => {
+      return transaction.get(documentRef).then((doc) => {
         if (!doc.exists) {
           transaction.create(documentRef, { foo: "bar" });
         }

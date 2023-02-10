@@ -14,58 +14,61 @@ export const mockSendPasswordResetEmail = vi.fn();
 export const mockVerifyIdToken = vi.fn<unknown[], FirebaseUser>();
 export const mockGetUser = vi.fn<unknown[], Record<string, never>>();
 export const mockCreateCustomToken = vi.fn<unknown[], string>();
-export const mockSetCustomUserClaims = vi.fn<unknown[], Record<string, never>>();
+export const mockSetCustomUserClaims = vi.fn<
+  unknown[],
+  Record<string, never>
+>();
 export const mockSignOut = vi.fn();
 export const mockUseEmulator = vi.fn();
 
 export class FakeAuth {
-  private currentUserRecord: FirebaseUser;
+  private readonly currentUserRecord: FirebaseUser;
 
   constructor(currentUser?: FirebaseUser) {
-    this.currentUserRecord = currentUser ?? {} as FirebaseUser;
+    this.currentUserRecord = currentUser ?? ({} as FirebaseUser);
     this.currentUserRecord.sendEmailVerification = mockSendVerificationEmail;
   }
 
-  createUserWithEmailAndPassword(): Promise<{ user: FirebaseUser }> {
+  async createUserWithEmailAndPassword(): Promise<{ user: FirebaseUser }> {
     mockCreateUserWithEmailAndPassword(...arguments);
-    return Promise.resolve({ user: this.currentUserRecord });
+    return await Promise.resolve({ user: this.currentUserRecord });
   }
 
-  deleteUser(): Promise<"👍"> {
+  async deleteUser(): Promise<"👍"> {
     mockDeleteUser(...arguments);
-    return Promise.resolve("👍");
+    return await Promise.resolve("👍");
   }
 
-  signInWithEmailAndPassword(): Promise<{ user: FirebaseUser }> {
+  async signInWithEmailAndPassword(): Promise<{ user: FirebaseUser }> {
     mockSignInWithEmailAndPassword(...arguments);
-    return Promise.resolve({ user: this.currentUserRecord });
+    return await Promise.resolve({ user: this.currentUserRecord });
   }
 
-  signOut(): Promise<"👍"> {
+  async signOut(): Promise<"👍"> {
     mockSignOut();
-    return Promise.resolve("👍");
+    return await Promise.resolve("👍");
   }
 
   sendPasswordResetEmail(): void {
     mockSendPasswordResetEmail(...arguments);
   }
 
-  verifyIdToken(): Promise<FirebaseUser> {
-    return Promise.resolve(
+  async verifyIdToken(): Promise<FirebaseUser> {
+    return await Promise.resolve(
       mockVerifyIdToken(...arguments) || this.currentUserRecord
     );
   }
 
-  getUser(): Promise<Record<string, never>> {
-    return Promise.resolve(mockGetUser(...arguments) || {});
+  async getUser(): Promise<Record<string, never>> {
+    return await Promise.resolve(mockGetUser(...arguments) || {});
   }
 
-  createCustomToken(): Promise<string> {
-    return Promise.resolve(mockCreateCustomToken(...arguments) || "");
+  async createCustomToken(): Promise<string> {
+    return await Promise.resolve(mockCreateCustomToken(...arguments) || "");
   }
 
-  setCustomUserClaims(): Promise<Record<string, never>> {
-    return Promise.resolve(mockSetCustomUserClaims(...arguments) || {});
+  async setCustomUserClaims(): Promise<Record<string, never>> {
+    return await Promise.resolve(mockSetCustomUserClaims(...arguments) || {});
   }
 
   useEmulator(): void {

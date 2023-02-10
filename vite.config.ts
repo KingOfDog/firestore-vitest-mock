@@ -1,9 +1,9 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     alias: {
-      'firestore-vitest-mock': './index.ts'
-    }
+      "firestore-vitest-mock": "./index.ts",
+    },
   },
-})
+});

@@ -4,19 +4,28 @@ import * as query from "./query";
 import * as timestamp from "./timestamp";
 import * as transaction from "./transaction";
 
-import { DatabaseCollections, DatabaseDocument, FakeFirestoreDatabase, FirestoreBatch } from './firestore.model';
+import {
+  type DatabaseCollections,
+  type DatabaseDocument,
+  type FakeFirestoreDatabase,
+  type FirestoreBatch,
+} from "./firestore.model";
 import buildDocFromHash from "./helpers/buildDocFromHash";
-import { DocumentData, DocumentHash, MockedDocument } from './helpers/buildDocFromHash.model';
+import {
+  type DocumentData,
+  type DocumentHash,
+  type MockedDocument,
+} from "./helpers/buildDocFromHash.model";
 import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
-import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
-import { Query } from './query';
-import { Transaction } from './transaction';
+import { type MockedQuerySnapshot } from "./helpers/buildQuerySnapShot.model";
+import { Query } from "./query";
+import { Transaction } from "./transaction";
 
-export * from './fieldValue';
-export * from './path';
-export * from './query';
-export * from './timestamp';
-export * from './transaction';
+export * from "./fieldValue";
+export * from "./path";
+export * from "./query";
+export * from "./timestamp";
+export * from "./transaction";
 
 export const mockCollectionGroup = vi.fn();
 export const mockBatch = vi.fn();
@@ -40,7 +49,7 @@ export const mockBatchSet = vi.fn();
 
 export const mockOnSnapShot = vi.fn();
 
-const _randomId = () =>
+const _randomId = (): string =>
   Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 
 export class FakeFirestore {
@@ -48,8 +57,13 @@ export class FakeFirestore {
   options: Record<string, unknown>;
   query: Query;
 
-  constructor(stubbedDatabase: FakeFirestoreDatabase = {}, options: Record<string, unknown> = {}) {
-    this.database = timestamp.convertTimestamps(stubbedDatabase) as FakeFirestoreDatabase;
+  constructor(
+    stubbedDatabase: FakeFirestoreDatabase = {},
+    options: Record<string, unknown> = {}
+  ) {
+    this.database = timestamp.convertTimestamps(
+      stubbedDatabase
+    ) as FakeFirestoreDatabase;
     this.query = new query.Query("", this);
     this.options = options;
   }
@@ -62,14 +76,17 @@ export class FakeFirestore {
     return this.query.collectionName;
   }
 
-  getAll(...params: (DocumentReference | unknown)[]): Promise<Array<MockedQuerySnapshot>> {
-    //Strip ReadOptions object
+  async getAll(
+    ...params: Array<DocumentReference | unknown>
+  ): Promise<MockedQuerySnapshot[]> {
+    // Strip ReadOptions object
     const references = params.filter(
       (arg) => arg instanceof DocumentReference
     ) as DocumentReference[];
 
-    return Promise.all(
-      transaction.mockGetAll(...references) || [...references].map(r => r.get())
+    return await Promise.all(
+      transaction.mockGetAll(...references) ??
+        [...references].map(async (r) => await r.get())
     );
   }
 
@@ -92,16 +109,15 @@ export class FakeFirestore {
         this._ref._updateData(doc.path, data, true);
         return this;
       },
-      commit() {
+      async commit() {
         mockBatchCommit(...arguments);
-        return Promise.resolve([]);
-      }
+        return await Promise.resolve([]);
+      },
     };
   }
 
   settings(): void {
     mockSettings(...arguments);
-    return;
   }
 
   useEmulator(): void {
@@ -176,7 +192,10 @@ export class FakeFirestore {
     return doc;
   }
 
-  _docAndColForPathArray(pathArray: string[]): { doc: DocumentReference, coll: CollectionReference } {
+  _docAndColForPathArray(pathArray: string[]): {
+    doc: DocumentReference;
+    coll: CollectionReference;
+  } {
     let doc = null;
     let coll = null;
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -194,9 +213,11 @@ export class FakeFirestore {
     return { doc: doc!, coll: coll! };
   }
 
-  runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T> {
+  async runTransaction<T>(
+    updateFunction: (transaction: Transaction) => Promise<T>
+  ): Promise<T> {
     mockRunTransaction(...arguments);
-    return updateFunction(new Transaction());
+    return await updateFunction(new Transaction());
   }
 
   _updateData(path: string, object: DocumentData, merge = false): void {
@@ -216,34 +237,37 @@ export class FakeFirestore {
     }
 
     // The parent entry is the id of the document
-    const docId = pathArray.pop() ?? '';
+    const docId = pathArray.pop() ?? "";
     // Find the parent of docId. Run through the path, creating missing entries
-    const parent: DatabaseDocument[] = pathArray.reduce((last: DatabaseCollections | DatabaseDocument[], entry, index) => {
-      const isCollection = index % 2 === 0;
-      if (isCollection) {
-        last = last as DatabaseCollections;
-        return last[entry] ?? (last[entry] = []);
-      } else {
-        last = last as DatabaseDocument[];
-        const existingDoc = last.find(doc => doc.id === entry);
-        if (existingDoc) {
-          // return _collections, creating it if it doesn't already exist
-          return existingDoc._collections ?? (existingDoc._collections = {});
-        }
+    const parent: DatabaseDocument[] = pathArray.reduce(
+      (last: DatabaseCollections | DatabaseDocument[], entry, index) => {
+        const isCollection = index % 2 === 0;
+        if (isCollection) {
+          last = last as DatabaseCollections;
+          return last[entry] ?? (last[entry] = []);
+        } else {
+          last = last as DatabaseDocument[];
+          const existingDoc = last.find((doc) => doc.id === entry);
+          if (existingDoc != null) {
+            // return _collections, creating it if it doesn't already exist
+            return existingDoc._collections ?? (existingDoc._collections = {});
+          }
 
-        const _collections = {};
-        last.push({ id: entry, _collections });
-        return _collections;
-      }
-    }, this.database) as DatabaseDocument[];
+          const _collections = {};
+          last.push({ id: entry, _collections });
+          return _collections;
+        }
+      },
+      this.database
+    ) as DatabaseDocument[];
 
     // parent should now be an array of documents
     // Replace existing data, if it's there, or add to the end of the array
-    const oldIndex = parent.findIndex(doc => doc.id === docId);
+    const oldIndex = parent.findIndex((doc) => doc.id === docId);
     parent[oldIndex >= 0 ? oldIndex : parent.length] = {
       ...(merge ? parent[oldIndex] : undefined),
       ...object,
-      id: docId
+      id: docId,
     };
   }
 }
@@ -261,12 +285,13 @@ export class DocumentReference {
   public firestore: FakeFirestore;
   public path: string;
 
-  constructor(public id: string, public parent: CollectionReference, firestore?: FakeFirestore) {
+  constructor(
+    public id: string,
+    public parent: CollectionReference,
+    firestore?: FakeFirestore
+  ) {
     this.firestore = firestore ?? parent.firestore;
-    this.path = parent.path
-      .split("/")
-      .concat(id)
-      .join("/");
+    this.path = parent.path.split("/").concat(id).join("/");
   }
 
   collection(collectionName: string): CollectionReference {
@@ -278,30 +303,39 @@ export class DocumentReference {
     mockListCollections();
 
     const document = this._getRawObject();
-    if (!document?._collections) {
-      return Promise.resolve([]);
+    if (document?._collections == null) {
+      return await Promise.resolve([]);
     }
 
     const collectionRefs = [];
     for (const collectionId of Object.keys(document._collections)) {
-      collectionRefs.push(
-        new CollectionReference(collectionId, this)
-      );
+      collectionRefs.push(new CollectionReference(collectionId, this));
     }
 
-    return Promise.resolve(collectionRefs);
+    return await Promise.resolve(collectionRefs);
   }
 
   async delete(): Promise<void> {
     mockDelete(...arguments);
   }
 
-  onSnapshot(callback: SnapshotCallback, errorCallback: ErrorCallback): () => void;
-  onSnapshot(options: Record<string, never>, callback: SnapshotCallback, errorCallback: ErrorCallback): () => void;
-  onSnapshot(a: SnapshotCallback | Record<string, never>, b: SnapshotCallback | ErrorCallback, c?: ErrorCallback): () => void {
+  onSnapshot(
+    callback: SnapshotCallback,
+    errorCallback: ErrorCallback
+  ): () => void;
+  onSnapshot(
+    options: Record<string, never>,
+    callback: SnapshotCallback,
+    errorCallback: ErrorCallback
+  ): () => void;
+  onSnapshot(
+    a: SnapshotCallback | Record<string, never>,
+    b: SnapshotCallback | ErrorCallback,
+    c?: ErrorCallback
+  ): () => void {
     mockOnSnapShot(...arguments);
-    const callback: SnapshotCallback = typeof a === 'function' ? a : b;
-    const errorCallback: ErrorCallback = c ?? b as ErrorCallback;
+    const callback: SnapshotCallback = typeof a === "function" ? a : b;
+    const errorCallback: ErrorCallback = c ?? (b as ErrorCallback);
 
     try {
       callback(this._get());
@@ -314,37 +348,40 @@ export class DocumentReference {
     }
 
     // Returns an unsubscribe function
-    return () => { return; };
+    return () => {};
   }
 
-  get(): Promise<MockedDocument> {
+  async get(): Promise<MockedDocument> {
     query.mockGet(...arguments);
     const data = this._get();
-    return Promise.resolve(data);
+    return await Promise.resolve(data);
   }
 
-  update(object: DocumentData): Promise<MockedDocument> {
+  async update(object: DocumentData): Promise<MockedDocument> {
     mockUpdate(...arguments);
     if (this._get().exists) {
       this.firestore._updateData(this.path, object, true);
     }
-    return Promise.resolve(
+    return await Promise.resolve(
       buildDocFromHash({
         ...object,
         _ref: this,
-        _updateTime: timestamp.Timestamp.now()
+        _updateTime: timestamp.Timestamp.now(),
       } as unknown as DocumentHash)
     );
   }
 
-  set(object: DocumentData, setOptions: { merge: boolean } = { merge: false }): Promise<MockedDocument> {
+  async set(
+    object: DocumentData,
+    setOptions: { merge: boolean } = { merge: false }
+  ): Promise<MockedDocument> {
     mockSet(...arguments);
     this.firestore._updateData(this.path, object, setOptions.merge);
-    return Promise.resolve(
+    return await Promise.resolve(
       buildDocFromHash({
         ...object,
         _ref: this,
-        _updateTime: timestamp.Timestamp.now()
+        _updateTime: timestamp.Timestamp.now(),
       } as unknown as DocumentHash)
     );
   }
@@ -371,9 +408,9 @@ export class DocumentReference {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     let requestedRecords = this.firestore.database[pathArray.shift()!];
     let document = null;
-    if (requestedRecords) {
+    if (requestedRecords != null) {
       const documentId = pathArray.shift();
-      document = requestedRecords.find(record => record.id === documentId);
+      document = requestedRecords.find((record) => record.id === documentId);
     } else {
       return null;
     }
@@ -382,23 +419,23 @@ export class DocumentReference {
       const collectionId = pathArray[index];
       const documentId = pathArray[index + 1];
 
-      if (!document || !document._collections) {
+      if (document == null || document._collections == null) {
         return null;
       }
-      requestedRecords = document._collections[collectionId] || [];
+      requestedRecords = document._collections[collectionId] ?? [];
       if (requestedRecords.length === 0) {
         return null;
       }
 
-      document = requestedRecords.find(record => record.id === documentId);
-      if (!document) {
+      document = requestedRecords.find((record) => record.id === documentId);
+      if (document == null) {
         return null;
       }
 
       // +2 skips to next document
     }
 
-    if (!!document || false) {
+    if (!(document == null) || false) {
       return document;
     }
     return null;
@@ -407,7 +444,7 @@ export class DocumentReference {
   _get(): MockedDocument {
     const document = this._getRawObject();
 
-    if (document) {
+    if (document != null) {
       document._ref = this;
       document._readTime = timestamp.Timestamp.now();
       return buildDocFromHash(document as DocumentHash);
@@ -419,7 +456,7 @@ export class DocumentReference {
         id: this.id,
         readTime: undefined,
         ref: this,
-        updateTime: undefined
+        updateTime: undefined,
       } as unknown as MockedDocument;
     }
   }
@@ -440,24 +477,28 @@ export class CollectionReference extends Query {
   public path: string;
   public firestore: FakeFirestore;
 
-  constructor(public id: string, public parent?: DocumentReference, firestore?: FakeFirestore) {
+  constructor(
+    public id: string,
+    public parent?: DocumentReference,
+    firestore?: FakeFirestore
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     super(id, (firestore ?? parent?.firestore)!);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.firestore = (firestore ?? parent?.firestore)!;
 
-    if (parent) {
+    if (parent != null) {
       this.path = parent.path.concat(`/${id}`);
     } else {
       this.path = id;
     }
   }
 
-  add(object: DocumentData): Promise<DocumentReference> {
+  async add(object: DocumentData): Promise<DocumentReference> {
     mockAdd(...arguments);
     const newDoc = new DocumentReference(_randomId(), this);
     this.firestore._updateData(newDoc.path, object);
-    return Promise.resolve(newDoc);
+    return await Promise.resolve(newDoc);
   }
 
   doc(id: string = _randomId()): DocumentReference {
@@ -486,17 +527,17 @@ export class CollectionReference extends Query {
       const documentId = pathArray[index];
       const collectionId = pathArray[index + 1];
 
-      if (!requestedRecords) {
+      if (requestedRecords == null) {
         return [];
       }
       const document = requestedRecords.find(
-        record => record.id === documentId
+        (record) => record.id === documentId
       );
-      if (!document || !document._collections) {
+      if (document == null || document._collections == null) {
         return [];
       }
 
-      requestedRecords = document._collections[collectionId] || [];
+      requestedRecords = document._collections[collectionId] ?? [];
       if (requestedRecords.length === 0) {
         return [];
       }
@@ -506,27 +547,27 @@ export class CollectionReference extends Query {
     return requestedRecords ?? [];
   }
 
-  listDocuments(): Promise<DocumentReference[]> {
+  async listDocuments(): Promise<DocumentReference[]> {
     mockListDocuments();
     // Returns all documents, including documents with no data but with
     // subcollections: see https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#listDocuments
-    return Promise.resolve(
+    return await Promise.resolve(
       this._records().map(
-        rec => new DocumentReference(rec.id, this, this.firestore)
+        (rec) => new DocumentReference(rec.id, this, this.firestore)
       )
     );
   }
 
-  get(): Promise<MockedQuerySnapshot> {
+  async get(): Promise<MockedQuerySnapshot> {
     query.mockGet(...arguments);
-    return Promise.resolve(this._get());
+    return await Promise.resolve(this._get());
   }
 
   _get(): MockedQuerySnapshot {
     // Make sure we have a 'good enough' document reference
-    const records: DocumentHash[] = this._records().map(rec => ({
+    const records: DocumentHash[] = this._records().map((rec) => ({
       ...rec,
-      _ref: new DocumentReference(rec.id, this, this.firestore)
+      _ref: new DocumentReference(rec.id, this, this.firestore),
     })) as DocumentHash[];
     // Firestore does not return documents with no local data
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;

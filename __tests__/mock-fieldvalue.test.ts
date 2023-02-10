@@ -1,17 +1,15 @@
 import { beforeEach, describe, expect, vi, test } from "vitest";
 
-import {
-  mockFirebase,
-} from "..";
+import { mockFirebase } from "..";
 import {
   mockArrayRemoveFieldValue,
   mockArrayUnionFieldValue,
   mockDeleteFieldValue,
   mockIncrementFieldValue,
-  mockServerTimestampFieldValue
+  mockServerTimestampFieldValue,
 } from "../mocks/firestore";
+import * as firebase from "firebase";
 mockFirebase({ database: {} });
-import * as firebase from 'firebase';
 
 describe("Single values transformed by field sentinels", () => {
   beforeEach(() => {
@@ -52,7 +50,7 @@ describe("Single values transformed by field sentinels", () => {
     const fieldValue = firebase.firestore.FieldValue.serverTimestamp();
     expect(fieldValue).toMatchObject({
       type: "serverTimestamp",
-      value: undefined
+      value: undefined,
     });
     expect(mockServerTimestampFieldValue).toHaveBeenCalledTimes(1);
   });

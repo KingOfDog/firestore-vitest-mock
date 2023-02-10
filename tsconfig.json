@@ -19,15 +19,33 @@
     "noImplicitReturns": true,
     "noEmitOnError": true,
     "noUnusedLocals": true,
+    "noImplicitAny": false,
     "importHelpers": true,
     "skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types", "./@types"],
-    "lib": ["es2018"],
-    "types": ["node"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./@types"
+    ],
+    "lib": [
+      "es2018"
+    ],
+    "types": [
+      "node"
+    ],
     "paths": {
-      "firestore-vitest-mock": ["./index.ts"]
+      "firestore-vitest-mock": [
+        "./index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "dist"],
-  "include": ["./mocks/**/*", "./@types/**/*", "./*.ts"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "include": [
+    "./mocks/**/*",
+    "./@types/**/*",
+    "./*.ts",
+    "__tests__/**/*"
+  ]
 }
