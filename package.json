@@ -1,6 +1,6 @@
 {
   "name": "firestore-vitest-mock",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Vitest helper for mocking Google Cloud Firestore",
   "author": "KingOfDog",
   "license": "MIT",
@@ -8,8 +8,7 @@
     "Vitest",
     "Firestore"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "index.ts",
   "scripts": {
     "lint": "eslint . --ext .js,.ts",
     "test": "vitest",
