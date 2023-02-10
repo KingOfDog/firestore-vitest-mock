@@ -3,6 +3,7 @@ import { vi } from "vitest";
 export interface FirebaseUser {
   uid: string;
   sendEmailVerification: unknown;
+  [key: string]: unknown;
 }
 
 export const mockCreateUserWithEmailAndPassword = vi.fn();
@@ -73,6 +74,6 @@ export class FakeAuth {
 
   get currentUser(): Readonly<FirebaseUser> {
     const { uid, ...data } = this.currentUserRecord;
-    return { uid, data };
+    return { uid, data } as unknown as FirebaseUser;
   }
 }

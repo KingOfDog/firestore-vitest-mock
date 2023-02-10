@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { FakeFirestoreDatabase } from './firestore.model';
+import { DatabaseCollections, FakeFirestoreDatabase } from './firestore.model';
 
 export const mockTimestampToDate = vi.fn<unknown[], Date>();
 export const mockTimestampToMillis = vi.fn<unknown[], number>();
@@ -8,7 +8,9 @@ export const mockTimestampFromMillis = vi.fn<unknown[], Timestamp>();
 export const mockTimestampNow = vi.fn<unknown[], Timestamp>();
 
 export class Timestamp {
-  constructor(private seconds: number, private nanoseconds: number) { }
+  [key: string]: unknown;
+
+  constructor(public seconds: number, public nanoseconds: number) { }
 
   isEqual(other: Timestamp): boolean {
     return (
@@ -62,13 +64,13 @@ export class Timestamp {
 
 //
 // Search data for possible timestamps and convert to class.
-export function convertTimestamps(data: FakeFirestoreDatabase, path = []): FakeFirestoreDatabase | Timestamp {
+export function convertTimestamps(data: DatabaseCollections | Timestamp, path: DatabaseCollections[] = []): FakeFirestoreDatabase | Timestamp {
   if (!data) {
     return data;
   }
   // we need to avoid self-referencing DB's (can happen on db.get)
   // Check we have not looped.  If we have, backout
-  if (path.includes(data)) {
+  if (!isTimestamp(data) && path.includes(data)) {
     return data;
   }
 
@@ -76,26 +78,31 @@ export function convertTimestamps(data: FakeFirestoreDatabase, path = []): FakeF
   if (typeof data === "object") {
     const keys = Object.keys(data);
     // if it is a timestamp, convert to the appropriate class
-    if (
-      keys.length === 2 &&
-      keys.find(k => k === "seconds") &&
-      keys.find(k => k === "nanoseconds")
-    ) {
+    if (isTimestamp(data)) {
       return new Timestamp(data.seconds, data.nanoseconds);
     } else {
+      data = data as DatabaseCollections;
       // Search recursively for any timestamps in this data
       // Keep track of the path taken, so we can avoid self-referencing loops
       // Note: running full-setup.test.js will fail without this check
       // add console.log(`${path} => ${k}`); to see how this class is added as a property
       path.push(data);
       keys.forEach(k => {
-        data[k] = convertTimestamps(data[k], path);
+        data[k] = convertTimestamps(data[k] as Timestamp | DatabaseCollections, path);
       });
       path.pop();
     }
   }
   return data;
 }
+
+function isTimestamp(data: Record<string, unknown>): data is Timestamp {
+  const keys = Object.keys(data);
+  return keys.length === 2 &&
+    !!keys.find(k => k === "seconds") &&
+    !!keys.find(k => k === "nanoseconds");
+}
+
 
 export const mocks = {
   mockTimestampToDate,

@@ -60,7 +60,7 @@ export class Query {
             return {
               ...doc,
               _ref: this.firestore._doc(path)
-            };
+            } as DocumentHash;
           }) ?? [];
           requestedRecords.push(...docHashes);
         }

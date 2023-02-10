@@ -1,22 +1,22 @@
-import { assert, vi } from "vitest";
+import { vi } from "vitest";
 
-import * as timestamp from "./timestamp";
 import * as query from "./query";
+import * as timestamp from "./timestamp";
 import * as transaction from "./transaction";
 
-import buildDocFromHash from "./helpers/buildDocFromHash";
-import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
-import { Query } from './query';
-import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
-import { Transaction } from './transaction';
 import { DatabaseCollections, DatabaseDocument, FakeFirestoreDatabase, FirestoreBatch } from './firestore.model';
+import buildDocFromHash from "./helpers/buildDocFromHash";
 import { DocumentData, DocumentHash, MockedDocument } from './helpers/buildDocFromHash.model';
+import buildQuerySnapShot from "./helpers/buildQuerySnapShot";
+import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
+import { Query } from './query';
+import { Transaction } from './transaction';
 
-export * from './query';
-export * from './transaction';
-export * from './timestamp';
 export * from './fieldValue';
 export * from './path';
+export * from './query';
+export * from './timestamp';
+export * from './transaction';
 
 export const mockCollectionGroup = vi.fn();
 export const mockBatch = vi.fn();
@@ -441,7 +441,6 @@ export class CollectionReference extends Query {
   public firestore: FakeFirestore;
 
   constructor(public id: string, public parent?: DocumentReference, firestore?: FakeFirestore) {
-    assert(firestore ?? parent?.firestore);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     super(id, (firestore ?? parent?.firestore)!);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

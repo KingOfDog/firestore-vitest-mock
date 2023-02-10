@@ -1,4 +1,6 @@
 import { vi } from "vitest";
+import { DocumentReference } from './firestore';
+import { DocumentData, MockedDocument } from './helpers/buildDocFromHash.model';
 import { MockedQuerySnapshot } from './helpers/buildQuerySnapShot.model';
 import { Query } from './query';
 
@@ -11,7 +13,7 @@ export const mockDeleteTransaction = vi.fn();
 export const mockCreateTransaction = vi.fn();
 
 export class Transaction {
-  getAll(...refsOrReadOptions: Array<Query | Record<string, never>>): Promise<Array<MockedQuerySnapshot>> {
+  getAll(...refsOrReadOptions: Array<DocumentReference | Record<string, never>>): Promise<Array<MockedDocument>> {
     mockGetAll(...arguments);
     mockGetAllTransaction(...arguments);
     // TODO: Assert that read options, if provided, are the last argument
@@ -21,36 +23,36 @@ export class Transaction {
     );
   }
 
-  get(ref: Query): Promise<MockedQuerySnapshot> {
+  get(ref: DocumentReference | Query): Promise<MockedDocument | MockedQuerySnapshot> {
     mockGetTransaction(...arguments);
     return Promise.resolve(ref._get());
   }
 
-  set(ref: Query): Transaction {
+  set(ref: DocumentReference, data: DocumentData, options?: { merge: boolean }): Transaction {
     mockSetTransaction(...arguments);
     const args = [...arguments];
     args.shift();
-    ref.set(...args);
+    ref.set(data, options);
     return this;
   }
 
-  update(ref: Query): Transaction {
+  update(ref: DocumentReference, data: DocumentData): Transaction {
     mockUpdateTransaction(...arguments);
     const args = [...arguments];
     args.shift();
-    ref.update(...args);
+    ref.update(data);
     return this;
   }
 
-  delete(ref: Query): Transaction {
+  delete(ref: DocumentReference): Transaction {
     mockDeleteTransaction(...arguments);
     ref.delete();
     return this;
   }
 
-  create(ref: Query, options: unknown): Transaction {
+  create(ref: DocumentReference, data: DocumentData): Transaction {
     mockCreateTransaction(...arguments);
-    ref.set(options);
+    ref.set(data);
     return this;
   }
 }

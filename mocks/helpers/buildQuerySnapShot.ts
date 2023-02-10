@@ -1,3 +1,4 @@
+import { Timestamp } from 'mocks/timestamp';
 import buildDocFromHash from './buildDocFromHash';
 import { DocumentHash } from './buildDocFromHash.model';
 import { MockedQuerySnapshot, QueryFilter } from './buildQuerySnapShot.model';
@@ -110,25 +111,22 @@ function _recordsWithNonNullKey(records: DocumentHash[], key: string): DocumentH
   return records.filter(record => record && record[key] !== undefined && record[key] !== null);
 }
 
-function _shouldCompareNumerically(a: unknown, b: unknown): boolean {
-  return typeof a === 'number' && typeof b === 'number';
-}
-
-function _shouldCompareTimestamp(a: unknown, b: unknown): boolean {
+function _shouldCompareTimestamp(a: unknown, b: unknown): a is Timestamp {
   //We check whether toMillis method exists to support both Timestamp mock and Firestore Timestamp object
   //B is expected to be Date, not Timestamp, just like Firestore does
   return (
-    typeof a === 'object' && a !== null && typeof a.toMillis === 'function' && b instanceof Date
+    typeof a === 'object' && a !== null && typeof (a as Record<string, unknown>).toMillis === 'function' && b instanceof Date
   );
 }
 
 function _recordsLessThanValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] < value;
+    const recordValue = record[key];
+    if (typeof recordValue === 'number' && typeof value === 'number') {
+      return recordValue < value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() < value;
+    if (_shouldCompareTimestamp(recordValue, value)) {
+      return recordValue.toMillis() < (value as Date).getTime();
     }
     return String(record[key]) < String(value);
   });
@@ -136,11 +134,12 @@ function _recordsLessThanValue(records: DocumentHash[], key: string, value: unkn
 
 function _recordsLessThanOrEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] <= value;
+    const recordValue = record[key];
+    if (typeof recordValue === 'number' && typeof value === 'number') {
+      return recordValue <= value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() <= value;
+    if (_shouldCompareTimestamp(recordValue, value)) {
+      return recordValue.toMillis() <= (value as Date).getTime();
     }
     return String(record[key]) <= String(value);
   });
@@ -148,9 +147,10 @@ function _recordsLessThanOrEqualToValue(records: DocumentHash[], key: string, va
 
 function _recordsEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithKey(records, key).filter(record => {
-    if (_shouldCompareTimestamp(record[key], value)) {
+    const recordValue = record[key];
+    if (_shouldCompareTimestamp(recordValue, value)) {
       //NOTE: for equality, we must compare numbers!
-      return record[key].toMillis() === value.getTime();
+      return recordValue.toMillis() === (value as Date).getTime();
     }
     return String(record[key]) === String(value);
   });
@@ -158,9 +158,10 @@ function _recordsEqualToValue(records: DocumentHash[], key: string, value: unkno
 
 function _recordsNotEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithKey(records, key).filter(record => {
-    if (_shouldCompareTimestamp(record[key], value)) {
+    const recordValue = record[key];
+    if (_shouldCompareTimestamp(recordValue, value)) {
       //NOTE: for equality, we must compare numbers!
-      return record[key].toMillis() !== value.getTime();
+      return recordValue.toMillis() !== (value as Date).getTime();
     }
     return String(record[key]) !== String(value);
   });
@@ -168,11 +169,12 @@ function _recordsNotEqualToValue(records: DocumentHash[], key: string, value: un
 
 function _recordsGreaterThanOrEqualToValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] >= value;
+    const recordValue = record[key];
+    if (typeof recordValue === 'number' && typeof value === 'number') {
+      return recordValue >= value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() >= value;
+    if (_shouldCompareTimestamp(recordValue, value)) {
+      return recordValue.toMillis() >= (value as Date).getTime();
     }
     return String(record[key]) >= String(value);
   });
@@ -180,11 +182,12 @@ function _recordsGreaterThanOrEqualToValue(records: DocumentHash[], key: string,
 
 function _recordsGreaterThanValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] > value;
+    const recordValue = record[key];
+    if (typeof recordValue === 'number' && typeof value === 'number') {
+      return recordValue > value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() > value;
+    if (_shouldCompareTimestamp(recordValue, value)) {
+      return recordValue.toMillis() > (value as Date).getTime();
     }
     return String(record[key]) > String(value);
   });
@@ -195,7 +198,7 @@ function _recordsGreaterThanValue(records: DocumentHash[], key: string, value: u
  */
 function _recordsArrayContainsValue(records: DocumentHash[], key: string, value: unknown): DocumentHash[] {
   return records.filter(
-    record => record && record[key] && Array.isArray(record[key]) && record[key].includes(value),
+    record => record && record[key] && Array.isArray(record[key]) && (record[key] as Array<unknown>).includes(value),
   );
 }
 
@@ -234,6 +237,6 @@ function _recordsWithOneOfValues(records: DocumentHash[], key: string, value: un
       Array.isArray(record[key]) &&
       value &&
       Array.isArray(value) &&
-      record[key].some(v => value.includes(v)),
+      (record[key] as Array<unknown>).some(v => value.includes(v)),
   );
 }

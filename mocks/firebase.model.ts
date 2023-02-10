@@ -20,7 +20,9 @@ export interface StubOverrides {
   currentUser?: FirebaseUser;
 }
 
-export interface StubOptions extends Partial<typeof DefaultOptions> { }
+export interface StubOptions extends Partial<typeof DefaultOptions> {
+  [key: string]: unknown;
+}
 
 export interface FirebaseMock {
   initializeApp: Mock;
