@@ -1,6 +1,6 @@
-import { DocumentReference } from 'mocks/firestore';
-import { FakeFirestoreDatabase } from 'mocks/firestore.model';
-import { Timestamp } from 'mocks/timestamp';
+import { DocumentReference } from '../firestore';
+import { FakeFirestoreDatabase } from '../firestore.model';
+import { Timestamp } from '../timestamp';
 
 export type DocumentData = { [field: string]: unknown };
 

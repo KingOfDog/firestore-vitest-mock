@@ -1,4 +1,4 @@
-import { Timestamp } from 'mocks/timestamp';
+import { Timestamp } from '../timestamp';
 import buildDocFromHash from './buildDocFromHash';
 import { DocumentHash } from './buildDocFromHash.model';
 import { MockedQuerySnapshot, QueryFilter } from './buildQuerySnapShot.model';
