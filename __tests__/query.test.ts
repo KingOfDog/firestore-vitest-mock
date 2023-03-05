@@ -9,6 +9,7 @@ import {
   Timestamp,
   Query,
   DocumentReference,
+  FieldPath,
 } from "../mocks/firestore";
 import { mockFirebase } from "..";
 import { type FirebaseUser } from "../mocks/auth";
@@ -167,6 +168,15 @@ describe("Queries", () => {
     const worm = noLegs.docs[0];
     expect(worm).toBeDefined();
     expect(worm).toHaveProperty("id", "worm");
+  });
+
+  test("it can query by document id", async () => {
+    const monkeys = await db.collection("animals").where(FieldPath.documentId(), "==", "monkey").get();
+
+    expect(monkeys).toHaveProperty("size", 1);
+    const monkey = monkeys.docs[0];
+    expect(monkey).toBeDefined();
+    expect(monkey).toHaveProperty("id", "monkey")
   });
 
   test("it can query false values", async () => {

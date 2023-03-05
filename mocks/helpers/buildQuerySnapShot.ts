@@ -68,6 +68,10 @@ function _filteredDocuments(
     // Convert values to string to make Array comparisons work
     // See https://jsbin.com/bibawaf/edit?js,console
 
+    if (!(typeof key === 'string')) {
+      key = 'id';
+    }
+
     switch (comp) {
       // https://firebase.google.com/docs/firestore/query-data/queries#query_operators
       case "<":

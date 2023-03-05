@@ -1,3 +1,4 @@
+import { FieldPath } from 'mocks/path';
 import { type MockedDocument } from "./buildDocFromHash.model";
 
 export type Comparator =
@@ -13,7 +14,7 @@ export type Comparator =
   | "array-contains-any";
 
 export interface QueryFilter {
-  key: string;
+  key: string | FieldPath;
   comp: Comparator;
   value: string;
 }
