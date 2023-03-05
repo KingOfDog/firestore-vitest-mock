@@ -1,4 +1,4 @@
-import { FieldPath } from 'mocks/path';
+import { FieldPath } from 'firestore-vitest-mock';
 import { type MockedDocument } from "./buildDocFromHash.model";
 
 export type Comparator =
