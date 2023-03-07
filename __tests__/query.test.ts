@@ -28,6 +28,11 @@ describe("Queries", () => {
             foodCount: 1,
             foodEaten: [500, 20],
             createdAt: new Timestamp(1628939119, 0),
+            house: {
+              street: {
+                name: 'Jungle Street'
+              }
+            }
           },
           {
             id: "elephant",
@@ -190,6 +195,19 @@ describe("Queries", () => {
     expect(pogoStick).toBeDefined();
     expect(pogoStick).toHaveProperty("id", "pogo-stick");
   });
+
+  test('it can query nested values', async () => {
+    const street = await db
+      .collection("animals")
+      .where("house.street.name", "==", "Jungle Street")
+      .get();
+
+    expect(street).toHaveProperty("size", 1);
+    const monkey = street.docs[0];
+    expect(monkey).toBeDefined();
+    expect(monkey).toHaveProperty("id", "monkey");
+    expect(monkey.data()).toHaveProperty("house.street.name", "Jungle Street");
+  })
 
   test("it can query date values for equality", async () => {
     const elephant = await db

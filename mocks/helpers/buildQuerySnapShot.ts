@@ -119,8 +119,24 @@ function _filteredDocuments(
   return records;
 }
 
+function byString(o: any, s: string) {
+  s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+  s = s.replace(/^\./, '');           // strip a leading dot
+  var a = s.split('.');
+  for (var i = 0, n = a.length; i < n; ++i) {
+    var k = a[i];
+    if (k in o) {
+      o = o[k];
+    } else {
+      return;
+    }
+  }
+  return o;
+}
+
+
 function _recordsWithKey(records: DocumentHash[], key: string): DocumentHash[] {
-  return records.filter((record) => record?.[key] !== undefined);
+  return records.filter((record) => byString(record, key) !== undefined);
 }
 
 function _recordsWithNonNullKey(
@@ -147,14 +163,14 @@ function _recordsLessThanValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (typeof recordValue === "number" && typeof value === "number") {
       return recordValue < value;
     }
     if (_shouldCompareTimestamp(recordValue, value)) {
       return recordValue.toMillis() < (value as Date).getTime();
     }
-    return String(record[key]) < String(value);
+    return String(byString(record, key)) < String(value);
   });
 }
 
@@ -164,14 +180,14 @@ function _recordsLessThanOrEqualToValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (typeof recordValue === "number" && typeof value === "number") {
       return recordValue <= value;
     }
     if (_shouldCompareTimestamp(recordValue, value)) {
       return recordValue.toMillis() <= (value as Date).getTime();
     }
-    return String(record[key]) <= String(value);
+    return String(byString(record, key)) <= String(value);
   });
 }
 
@@ -181,12 +197,12 @@ function _recordsEqualToValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (_shouldCompareTimestamp(recordValue, value)) {
       // NOTE: for equality, we must compare numbers!
       return recordValue.toMillis() === (value as Date).getTime();
     }
-    return String(record[key]) === String(value);
+    return String(byString(record, key)) === String(value);
   });
 }
 
@@ -196,12 +212,12 @@ function _recordsNotEqualToValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (_shouldCompareTimestamp(recordValue, value)) {
       // NOTE: for equality, we must compare numbers!
       return recordValue.toMillis() !== (value as Date).getTime();
     }
-    return String(record[key]) !== String(value);
+    return String(byString(record, key)) !== String(value);
   });
 }
 
@@ -211,14 +227,14 @@ function _recordsGreaterThanOrEqualToValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (typeof recordValue === "number" && typeof value === "number") {
       return recordValue >= value;
     }
     if (_shouldCompareTimestamp(recordValue, value)) {
       return recordValue.toMillis() >= (value as Date).getTime();
     }
-    return String(record[key]) >= String(value);
+    return String(byString(record, key)) >= String(value);
   });
 }
 
@@ -228,14 +244,14 @@ function _recordsGreaterThanValue(
   value: unknown
 ): DocumentHash[] {
   return _recordsWithNonNullKey(records, key).filter((record) => {
-    const recordValue = record[key];
+    const recordValue = byString(record, key);
     if (typeof recordValue === "number" && typeof value === "number") {
       return recordValue > value;
     }
     if (_shouldCompareTimestamp(recordValue, value)) {
       return recordValue.toMillis() > (value as Date).getTime();
     }
-    return String(record[key]) > String(value);
+    return String(byString(record, key)) > String(value);
   });
 }
 
@@ -250,8 +266,8 @@ function _recordsArrayContainsValue(
   return records.filter(
     (record) =>
       record?.[key] &&
-      Array.isArray(record[key]) &&
-      (record[key] as unknown[]).includes(value)
+      Array.isArray(byString(record, key)) &&
+      (byString(record, key) as unknown[]).includes(value)
   );
 }
 
@@ -265,10 +281,10 @@ function _recordsWithValueInList(
 ): DocumentHash[] {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return records.filter((record) => {
-    if (!record || record[key] === undefined) {
+    if (!record || byString(record, key) === undefined) {
       return false;
     }
-    return value && Array.isArray(value) && value.includes(record[key]);
+    return value && Array.isArray(value) && value.includes(byString(record, key));
   });
 }
 
@@ -282,7 +298,7 @@ function _recordsWithValueNotInList(
 ): DocumentHash[] {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return _recordsWithKey(records, key).filter(
-    (record) => value && Array.isArray(value) && !value.includes(record[key])
+    (record) => value && Array.isArray(value) && !value.includes(byString(record, key))
   );
 }
 
@@ -298,9 +314,9 @@ function _recordsWithOneOfValues(
   return records.filter(
     (record) =>
       record?.[key] &&
-      Array.isArray(record[key]) &&
+      Array.isArray(byString(record, key)) &&
       value &&
       Array.isArray(value) &&
-      (record[key] as unknown[]).some((v) => value.includes(v))
+      (byString(record, key) as unknown[]).some((v) => value.includes(v))
   );
 }
