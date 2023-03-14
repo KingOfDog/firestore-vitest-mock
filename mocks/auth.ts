@@ -7,6 +7,7 @@ export interface FirebaseUser {
 }
 
 export const mockCreateUserWithEmailAndPassword = vi.fn();
+export const mockUpdateUser = vi.fn();
 export const mockDeleteUser = vi.fn();
 export const mockSendVerificationEmail = vi.fn();
 export const mockSignInWithEmailAndPassword = vi.fn();
@@ -32,6 +33,11 @@ export class FakeAuth {
   async createUserWithEmailAndPassword(): Promise<{ user: FirebaseUser }> {
     mockCreateUserWithEmailAndPassword(...arguments);
     return await Promise.resolve({ user: this.currentUserRecord });
+  }
+
+  async updateUser(): Promise<"👍"> {
+    mockUpdateUser(...arguments);
+    return await Promise.resolve("👍");
   }
 
   async deleteUser(): Promise<"👍"> {
