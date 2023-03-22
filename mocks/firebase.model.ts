@@ -2,6 +2,7 @@ import type { Mock } from "vitest";
 import type { FirebaseUser, FakeAuth } from "./auth";
 import type { FakeFirestore } from "./firestore";
 import type DefaultOptions from "./helpers/defaultMockOptions";
+import { FakeMessaging } from "./messaging";
 
 export interface DatabaseDocument {
   id: string;
@@ -33,4 +34,5 @@ export interface FirebaseMock {
   };
   auth: () => FakeAuth;
   firestore: () => FakeFirestore;
+  messaging: () => FakeMessaging;
 }

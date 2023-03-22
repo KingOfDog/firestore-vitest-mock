@@ -18,6 +18,7 @@ export const firebaseStub = async (
   const {
     FakeFirestore,
     FakeAuth,
+    FakeMessaging,
     Query,
     CollectionReference,
     DocumentReference,
@@ -54,6 +55,10 @@ export const firebaseStub = async (
 
     auth() {
       return new FakeAuth(overrides?.currentUser);
+    },
+
+    messaging() {
+      return new FakeMessaging();
     },
 
     firestore: firestoreConstructor,
